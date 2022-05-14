@@ -37,6 +37,24 @@ class PortalsConnector : CoroutineScope {
         return portals
     }
 
+    suspend fun rescanConnected(): Set<PortalConnection> {
+        Log.v(Constants.AppTag, "Rescanning connected portals...")
+
+        val newPortals = portals.filter { conn ->
+            Log.v(Constants.AppTag, "Rescanning connected portal: $conn")
+            conn.available()
+        }.toHashSet()
+
+        val lost = portals.minus(newPortals)
+
+        if (lost.isNotEmpty()) {
+            portals = newPortals
+            Log.i(Constants.AppTag, "Lost portals: $lost")
+        }
+
+        return portals
+    }
+
     private suspend fun scan(): Set<PortalConnection> {
         return coroutineScope {
             (2..254).map { i ->
