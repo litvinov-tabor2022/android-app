@@ -12,11 +12,11 @@ class PortalConnection(val client: PortalClient, val ip: Inet4Address, val devic
 
             return try {
                 val status = client.getStatus()
-                if (status.device_group != Constants.PortalGroupId) return Result.failure(
+                if (status.deviceGroup != Constants.PortalGroupId) return Result.failure(
                     RuntimeException("device_group doesn't match")
                 )
 
-                Result.success(PortalConnection(client, ip, status.device_id))
+                Result.success(PortalConnection(client, ip, status.deviceId))
             } catch (e: Exception) {
                 Result.failure(e)
             }

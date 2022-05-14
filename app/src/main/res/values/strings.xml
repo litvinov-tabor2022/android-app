@@ -5,13 +5,10 @@
     <string name="wifi_list_button">WIFI</string>
     <string name="write_to_card_button">Write</string>
     <string name="portaltab_header_main">Data</string>
-    <string name="portaltab_header_settings">Nastavení</string>
-    <string name="choose_portal_wifi">Vyber portál:</string>
     <string name="button_fetch_data">Stáhni data</string>
     <string name="button_delete_data">Smaž data</string>
-    <string name="data_imported">Data stažena</string>
-    <string name="data_deleted">Data smazána</string>
+    <string name="data_imported">Data stažena!</string>
+    <string name="data_deleted">Data smazána!</string>
     <string name="button_fix_time">Nastav aktuální čas</string>
-    <string name="time_updated">Čas nastaven</string>
-    <string name="cant_connect_to_portal">Nelze se připojit k portálu %1$s! Je přepnut do servisního módu?\n%2$s</string>
+    <string name="time_updated">Čas nastaven!</string>
 </resources>

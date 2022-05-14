@@ -6,7 +6,7 @@ data class JsonStatus(
     @JsonProperty("status")
     val status: String,
     @JsonProperty("device_group")
-    val device_group: String,
+    val deviceGroup: String,
     @JsonProperty("device_id")
-    val device_id: String,
+    val deviceId: String,
 )

@@ -1,6 +1,7 @@
 package cz.jenda.tabor2022.connection
 
 import `in`.abilng.ndjson.NdJsonObjectMapper
+import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.KotlinFeature
 import com.fasterxml.jackson.module.kotlin.KotlinModule
@@ -66,6 +67,7 @@ interface PortalClient {
         }
 
         private val kotlinModule = KotlinModule.Builder()
+            .configure(KotlinFeature.NullIsSameAsDefault, true)
             .configure(KotlinFeature.StrictNullChecks, true)
             .build()
 
