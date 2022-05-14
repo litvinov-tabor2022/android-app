@@ -6,8 +6,8 @@ import android.os.Bundle
 import android.widget.Button
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import cz.jenda.tabor2022.R
 import com.tbruyelle.rxpermissions3.RxPermissions
+import cz.jenda.tabor2022.R
 
 class MainActivity : AppCompatActivity() {
     private val rxPermissions = RxPermissions(this)
@@ -16,8 +16,13 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        findViewById<Button>(R.id.button)?.setOnClickListener {
+        findViewById<Button>(R.id.button_sync)?.setOnClickListener {
             val intent = Intent(this, SynchronizeActivity::class.java)
+            startActivity(intent)
+        }
+
+        findViewById<Button>(R.id.button_tags)?.setOnClickListener {
+            val intent = Intent(this, TagsActivity::class.java)
             startActivity(intent)
         }
 
@@ -33,7 +38,7 @@ class MainActivity : AppCompatActivity() {
             .subscribe { granted: Boolean ->
                 if (!granted) {
                     // At least one permission is denied
-                    Toast.makeText(this, "Povol všechna oprávnění!!!", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, R.string.allow_all_permissions, Toast.LENGTH_SHORT).show()
                 }
             }
     }

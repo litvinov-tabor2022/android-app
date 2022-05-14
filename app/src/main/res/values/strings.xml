@@ -1,14 +1,28 @@
 <resources>
     <string name="app_name">Portál</string>
-    <string name="card_write_message">Attach the card close to the mobile device</string>
-    <string name="wifi_signal_format">%1$d dBm</string>
-    <string name="wifi_list_button">WIFI</string>
-    <string name="write_to_card_button">Write</string>
-    <string name="portaltab_header_main">Data</string>
+
+    <string name="allow_all_permissions">Povol všechna oprávnění!!!</string>
+    <string name="tag_init_insert_tag">Přilož amulet</string>
+    <string name="tag_init_done">Amulet inicializován!</string>
+    <string name="tag_init_failure">Chyba inicializace amuletu!</string>
+
+    <string name="button_synchronization">Synchronizace</string>
+    <string name="button_tags">Tagy</string>
     <string name="button_fetch_data">Stáhni data</string>
     <string name="button_delete_data">Smaž data</string>
+    <string name="button_fix_time">Nastav aktuální čas</string>
+    <string name="button_init_tag">Inicializace tagu</string>
+
+
     <string name="data_imported">Data stažena!</string>
     <string name="data_deleted">Data smazána!</string>
-    <string name="button_fix_time">Nastav aktuální čas</string>
     <string name="time_updated">Čas nastaven!</string>
+    <string name="tag_initialized">Tag inicializován!</string>
+
+    <string name="read_tag_info_text">Přiložte amulet k mobilnímu zařízení</string>
+    <string name="read_tag_generic_error">Chyba při čtení amuletu, zkuste jej přiložit znovu.</string>
+    <string name="read_tag_lost_connection">Amulet byl během čtení/zápisu odebrán. Data nebyla úspěšně přenesena.</string>
+    <string name="read_tag_possibly_invalid">Přiložený amulet může být vadný, zkuste operaci zopakovat.</string>
+
+    <string name="err_missing_name">Je třeba vyplnit jméno!</string>
 </resources>
