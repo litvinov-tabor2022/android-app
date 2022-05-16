@@ -26,6 +26,11 @@ class MainActivity : AppCompatActivity() {
             startActivity(intent)
         }
 
+        findViewById<Button>(R.id.button_users)?.setOnClickListener {
+            val intent = Intent(this, UsersActivity::class.java)
+            startActivity(intent)
+        }
+
         rxPermissions.setLogging(true);
 
         rxPermissions

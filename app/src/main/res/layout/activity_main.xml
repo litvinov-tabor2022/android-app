@@ -21,13 +21,14 @@
             android:id="@+id/imageView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:scaleX="0.5"
-            android:scaleY="0.5"
             app:layout_constraintBottom_toTopOf="@id/button_sync"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@drawable/diamond" />
+            app:srcCompat="@drawable/skeldal_logo"
+            android:adjustViewBounds="true"
+            android:scaleType="centerInside"
+            android:padding="20dp" />
 
     <Button
             android:id="@+id/button_sync"
@@ -49,5 +50,15 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@id/button_sync" />
+
+    <Button
+            android:id="@+id/button_users"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="30dp"
+            android:text="@string/button_users"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/button_tags" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

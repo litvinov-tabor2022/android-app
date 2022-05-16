@@ -38,11 +38,18 @@
 
         <activity
                 android:name=".activities.SynchronizeActivity"
-                android:exported="false" />
+                android:exported="false"
+                android:windowSoftInputMode="adjustPan" />
+
+        <activity
+                android:name=".activities.UsersActivity"
+                android:exported="false"
+                android:windowSoftInputMode="adjustPan" />
 
         <activity
                 android:name=".activities.TagsActivity"
-                android:exported="false">
+                android:exported="false"
+                android:windowSoftInputMode="adjustPan">
             <intent-filter>
                 <action android:name="android.nfc.action.TAG_DISCOVERED" />
                 <category android:name="android.intent.category.DEFAULT" />

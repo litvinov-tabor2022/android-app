@@ -18,8 +18,6 @@ object PortalActions : CoroutineScope {
     override val coroutineContext: CoroutineContext
         get() = Dispatchers.IO + job
 
-    private const val TransactionReimportFailure: String =
-        "UNIQUE constraint failed: transactions.time, transactions.device_id (code 2067 SQLITE_CONSTRAINT_UNIQUE[2067])"
 
     suspend fun synchronizeTime(ctx: Context, portals: Set<PortalConnection>) {
         val currentTime = System.currentTimeMillis() / 1000
@@ -148,7 +146,7 @@ object PortalActions : CoroutineScope {
             }.onFailure { e ->
                 when (e) {
                     is SQLiteConstraintException -> {
-                        if (e.message?.contains(TransactionReimportFailure) == true) {
+                        if (e.message?.contains(Constants.Db.UniqueConflict) == true) {
                             Log.v(Constants.AppTag, "Transaction $transaction is already imported!")
                         } else {
                             // rethrow all different errors!

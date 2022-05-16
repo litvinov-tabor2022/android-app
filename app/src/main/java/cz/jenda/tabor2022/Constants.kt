@@ -8,6 +8,7 @@ object Constants {
     val PortalConnectionTimeout: Duration = Duration.ofMillis(500)
 
     const val PortalGroupId: String = "tabor2022"
+    const val AppDeviceId: String = "android-app"
     const val TagSecret: String = "\$1\$gJvI"
 
     const val DbName: String = "portal-db"
@@ -30,6 +31,11 @@ object Constants {
         0x00.toByte(),
         0x00.toByte()
     )
+
+    object Db {
+        const val UniqueConflict: String =
+            "(code 2067 SQLITE_CONSTRAINT_UNIQUE[2067])"
+    }
 
     fun ByteArray.toHex(): String = joinToString(separator = "") { eachByte -> "%02x".format(eachByte) }
 }

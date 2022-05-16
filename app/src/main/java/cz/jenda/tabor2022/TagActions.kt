@@ -47,7 +47,7 @@ class TagActions(
                             withContext(Dispatchers.IO) {
                                 val istream = ByteArrayInputStream(resp.data)
                                 val playerData = Portal.PlayerData.parseDelimitedFrom(istream)
-                                Log.d(Constants.AppTag, "Loaded PlayerData: $playerData")
+                                Log.v(Constants.AppTag, "Loaded PlayerData: $playerData")
                                 playerData
                             }
                         }.onSuccess { onTagRead(mifare, it) }.onFailure { e ->

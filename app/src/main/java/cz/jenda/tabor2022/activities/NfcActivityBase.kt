@@ -8,22 +8,12 @@ import android.nfc.NfcManager
 import android.nfc.tech.MifareClassic
 import android.os.Bundle
 import android.util.Log
-import androidx.appcompat.app.AppCompatActivity
 import cz.jenda.tabor2022.Constants
 import cz.jenda.tabor2022.TagActions
 import cz.jenda.tabor2022.data.proto.Portal
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
-import kotlin.coroutines.CoroutineContext
 
-abstract class NfcActivityBase : AppCompatActivity(), CoroutineScope {
-
-    protected var job: Job = Job()
-
-    override val coroutineContext: CoroutineContext
-        get() = Dispatchers.Default + job
+abstract class NfcActivityBase : BasicActivity() {
 
     private var adapter: NfcAdapter? = null
     protected val actions: TagActions = TagActions(this) { tag, data -> onTagRead(tag, data) }

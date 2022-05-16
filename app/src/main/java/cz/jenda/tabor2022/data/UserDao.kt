@@ -7,10 +7,13 @@ import androidx.room.Query
 
 @Dao
 interface UserDao {
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    @Insert(onConflict = OnConflictStrategy.ABORT)
+    suspend fun create(user: User)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun save(user: User)
 
-    @Query("SELECT * FROM users")
+    @Query("SELECT * FROM users ORDER by name ASC")
     suspend fun getAll(): List<User>
 
     @Query("SELECT * FROM users where id = :id limit 1")
