@@ -1,6 +1,7 @@
 package cz.jenda.tabor2022
 
 import java.time.Duration
+import java.util.prefs.Preferences
 
 object Constants {
     const val AppTag: String = "PORTAL-APP"
@@ -12,6 +13,7 @@ object Constants {
     const val TagSecret: String = "\$1\$gJvI"
 
     const val DbName: String = "portal-db"
+    const val PreferencesName: String = "portal-preferences"
 
     const val TagDataSizeLimit: Int = 64 * 4
 

@@ -1,6 +1,8 @@
-package cz.jenda.tabor2022.data
+package cz.jenda.tabor2022.data.dao
 
 import androidx.room.*
+import cz.jenda.tabor2022.data.GameTransaction
+import cz.jenda.tabor2022.data.UserAndTransactions
 
 @Dao
 interface GameTransactionDao {

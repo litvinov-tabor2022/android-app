@@ -27,7 +27,9 @@ data class GameTransaction(
     @ColumnInfo(name = "magic")
     val magic: Int,
     @ColumnInfo(name = "bonus_points")
-    val bonusPoints: Int
+    val bonusPoints: Int,
+    @ColumnInfo(name = "skill")
+    val skillId: Int
 ) {
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "id")

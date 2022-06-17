@@ -10,14 +10,14 @@ import cz.jenda.tabor2022.R
 import cz.jenda.tabor2022.data.User
 
 class UserAdapter(private val context: Activity, private val data: List<User>) :
-    ArrayAdapter<String>(context, R.layout.user_entry) {
+    ArrayAdapter<User>(context, R.layout.user_entry) {
 
     override fun getCount(): Int {
         return data.size
     }
 
-    override fun getItem(position: Int): String {
-        return data[position].name
+    override fun getItem(position: Int): User {
+        return data[position]
     }
 
     override fun getItemId(position: Int): Long {

@@ -60,7 +60,7 @@ class PortalsConnector : CoroutineScope {
             (2..254).map { i ->
                 async {
                     val ip = Inet4Address.getByAddress(
-                        byteArrayOf(192.toByte(), 168.toByte(), 1.toByte(), i.toByte())
+                        byteArrayOf(192.toByte(), 168.toByte(), 88.toByte(), i.toByte())
                     )
 
                     val existing = portals.find { it.ip == ip }

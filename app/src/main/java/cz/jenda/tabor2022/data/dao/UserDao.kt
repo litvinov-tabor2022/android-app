@@ -1,17 +1,18 @@
-package cz.jenda.tabor2022.data
+package cz.jenda.tabor2022.data.dao
 
-import androidx.room.Dao
-import androidx.room.Insert
-import androidx.room.OnConflictStrategy
-import androidx.room.Query
+import androidx.room.*
+import cz.jenda.tabor2022.data.User
 
 @Dao
 interface UserDao {
     @Insert(onConflict = OnConflictStrategy.ABORT)
-    suspend fun create(user: User)
+    suspend fun create(user: User): Long
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun save(user: User)
+
+    @Delete
+    suspend fun remove(user: User)
 
     @Query("SELECT * FROM users ORDER by name ASC")
     suspend fun getAll(): List<User>

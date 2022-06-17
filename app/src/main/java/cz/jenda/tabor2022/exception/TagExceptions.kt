@@ -7,3 +7,5 @@ class InvalidDataOnTag(message: String) : TagExceptions(message)
 class TagCannotBeRead(message: String) : TagExceptions(message)
 
 class TagCannotBeWritten(message: String) : TagExceptions(message)
+
+class TagDataIsInconsistent(message: String): TagExceptions(message)

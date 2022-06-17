@@ -1,18 +1,22 @@
 package cz.jenda.tabor2022.fragments
 
+import android.content.Intent
 import android.nfc.tech.MifareClassic
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.Log
 import android.view.*
 import android.view.ContextMenu.ContextMenuInfo
-import android.widget.AdapterView
+import android.widget.*
 import android.widget.AdapterView.AdapterContextMenuInfo
-import android.widget.ListView
-import android.widget.Toast
 import cz.jenda.tabor2022.Constants
+import cz.jenda.tabor2022.Extras.DATA_TO_WRITE_ON_TAG
 import cz.jenda.tabor2022.PortalApp
 import cz.jenda.tabor2022.R
 import cz.jenda.tabor2022.TagActions
+import cz.jenda.tabor2022.activities.BasicActivity
+import cz.jenda.tabor2022.activities.TagWriteActivity
 import cz.jenda.tabor2022.activities.TagsActivity
 import cz.jenda.tabor2022.adapters.UserAdapter
 import cz.jenda.tabor2022.data.User
@@ -20,11 +24,13 @@ import cz.jenda.tabor2022.data.proto.Portal
 import cz.jenda.tabor2022.data.proto.playerData
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.launch
+import java.util.*
 
-class TagInitFragment(activity: TagsActivity, private val actions: TagActions) :
-    TagAwareFragmentBase(activity) {
+class UsersListFragment :
+    BasicFragment() {
 
     private lateinit var users: List<User>
+    private lateinit var filteredUsers: List<User>
     private var waitingInit: WaitingInit? = null
 
     override fun onCreateView(
@@ -32,25 +38,23 @@ class TagInitFragment(activity: TagsActivity, private val actions: TagActions) :
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        return inflater.inflate(R.layout.fragment_tag_init, container, false)
+        return inflater.inflate(R.layout.fragment_users_list, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         val list = view.findViewById<ListView>(R.id.users_list)
 
+        view.findViewById<EditText>(R.id.search_bar).addTextChangedListener(textWatcher)
+
         registerForContextMenu(list);
 
         launch {
-            users = PortalApp.instance.db.usersDao().getAll()
+            fetchData()
             activity?.let { act -> act.runOnUiThread { list.adapter = UserAdapter(act, users) } }
         }
 
         list.onItemClickListener = AdapterView.OnItemClickListener { parent, view, position, id ->
-            val user = users[position]
 
-            Log.i(Constants.AppTag, "About to initialize tag for $user")
-
-            launch { initTag(user) }
         }
     }
 
@@ -58,7 +62,7 @@ class TagInitFragment(activity: TagsActivity, private val actions: TagActions) :
         super.onCreateContextMenu(menu, view, menuInfo)
         val list = view as ListView
         val info = menuInfo as AdapterContextMenuInfo
-        val user: User = users[info.position]
+        val user: User = filteredUsers[info.position]
         list.getItemAtPosition(info.position)
         menu.setHeaderTitle(user.name)
         val inflater: MenuInflater? = activity?.menuInflater
@@ -68,7 +72,7 @@ class TagInitFragment(activity: TagsActivity, private val actions: TagActions) :
     override fun onContextItemSelected(item: MenuItem): Boolean {
         super.onContextItemSelected(item)
         val info = item.menuInfo as AdapterContextMenuInfo
-        val user: User = users[info.position]
+        val user: User = filteredUsers[info.position]
         Log.d(Constants.AppTag, user.toString())
         when (item.itemId) {
             R.id.menu_item_init_tag -> {
@@ -76,30 +80,24 @@ class TagInitFragment(activity: TagsActivity, private val actions: TagActions) :
                 launch { initTag(user) }
             }
             R.id.menu_item_remove_user -> {
-                Log.d(Constants.AppTag, "Remove user/tag from menu")
+                launch {
+                    runCatching {
+                        PortalApp.instance.db.usersDao().remove(user)
+                        Log.d(Constants.AppTag, "Remove user/tag from menu")
+                    }.onSuccess {
+                        users = users.filter { it.id != user.id }
+                    }
+                }
             }
         }
         return true
     }
 
-
-    override suspend fun onTagRead(tag: MifareClassic, tagData: Portal.PlayerData?) {
-        Log.d(Constants.AppTag, "Tag read @ TagInitFragment: $tagData")
-
-        val waitingInit = this.waitingInit // snapshot
-        this.waitingInit = null
-
-        if (waitingInit != null) {
-            Log.d(Constants.AppTag, "Will initialize tag: ${waitingInit.data}")
-            runCatching { actions.writeToTag(tag, waitingInit.data) }
-                .onSuccess { waitingInit.def.complete(Unit) }
-                .onFailure { waitingInit.def.completeExceptionally(it) }
-            Log.v(Constants.AppTag, "nulling waitingInit")
-            return
-        }
+    private suspend fun fetchData() {
+        users = PortalApp.instance.db.usersDao().getAll()
     }
 
-    private suspend fun initTag(user: User) {
+    private fun initTag(user: User) {
         val player = playerData {
             userId = user.id
             strength = user.strength
@@ -109,29 +107,53 @@ class TagInitFragment(activity: TagsActivity, private val actions: TagActions) :
             secret = Constants.TagSecret
         }
 
-        val def = CompletableDeferred<Unit>()
-        waitingInit = WaitingInit(player, def)
-        activity?.runOnUiThread {
-            Toast.makeText(activity, R.string.tag_init_insert_tag, Toast.LENGTH_SHORT).show()
+        val intent = Intent(view?.context, TagWriteActivity::class.java)
+        intent.putExtra(DATA_TO_WRITE_ON_TAG, player)
+        startActivity(intent)
+    }
+
+    private val textWatcher = object : TextWatcher {
+        override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
         }
 
-        runCatching { def.await() }
-            .onSuccess {
-                activity?.runOnUiThread {
-                    Toast.makeText(
-                        activity,
-                        R.string.tag_init_done,
-                        Toast.LENGTH_SHORT
-                    ).show()
+        override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+            val list = view?.findViewById<ListView>(R.id.users_list)
+
+            filteredUsers = users.filter { user ->
+                p0?.let { user.name.contains(it, ignoreCase = true) } ?: true
+            }
+            Log.d(Constants.AppTag, filteredUsers.toString())
+            activity?.let { act ->
+                act.runOnUiThread {
+                    list?.adapter = UserAdapter(act, filteredUsers)
                 }
             }
-            .onFailure { e ->
-                activity?.runOnUiThread {
-                    Toast.makeText(activity, R.string.tag_init_failure, Toast.LENGTH_SHORT).show()
+        }
+
+        override fun afterTextChanged(p0: Editable?) {
+        }
+
+    }
+
+    private fun refreshView() {
+        val list = view?.findViewById<ListView>(R.id.users_list)
+        activity?.let { act ->
+            act.runOnUiThread {
+                if (list != null) {
+                    list.adapter = UserAdapter(act, users)
                 }
-                Log.e(Constants.AppTag, "Couldn't initialize the tag!", e)
             }
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        launch {
+            fetchData()
+            refreshView()
+        }
     }
 
     private data class WaitingInit(val data: Portal.PlayerData, val def: CompletableDeferred<Unit>)
 }
+

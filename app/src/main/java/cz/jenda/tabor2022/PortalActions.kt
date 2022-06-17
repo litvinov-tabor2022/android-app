@@ -127,6 +127,7 @@ object PortalActions : CoroutineScope {
                             dexterity = transaction.dexterity,
                             magic = transaction.magic,
                             bonusPoints = transaction.bonusPoints,
+                            skillId =  transaction.skill,
                         )
                     )
 
