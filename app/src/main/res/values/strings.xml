@@ -11,8 +11,8 @@
     <string name="tag_init_failure">Chyba inicializace amuletu!</string>
 
     <string name="button_synchronization">Synchronizace</string>
-    <string name="button_tags">Tagy</string>
-    <string name="button_users">Uživatelé</string>
+    <string name="button_tags">Amulety</string>
+    <string name="button_users">Hráči</string>
 
     <string name="button_fetch_data">Stáhni data</string>
     <string name="button_delete_data">Smaž data</string>
@@ -42,4 +42,24 @@
     <string name="player_bonus_points">Bonusové body</string>
 
     <string name="player_name_none">- none -</string>
+    <string name="zero_stat">00</string>
+    <string name="revert_changes">Vrátit úpravy</string>
+    <string name="write_to_tag">Přilož tag hráče %1$s.</string>
+    <string name="data_written">Data hráče úspěšně uložena</string>
+    <string name="writing_data_failed">Zápis dat na tag selhal. Opakujte pokus.</string>
+    <string name="inconsistend_data">Data na tagu a v zařízení nejsou konzistentní. Inicializujte tag znovu.</string>
+    <string name="remove">Smazat</string>
+    <string name="userstab_header_list">Seznam</string>
+    <string name="search_hint">vyhledávání</string>
+    <string name="button_backup">Záloha</string>
+    <string name="backup_done">Záloha dokončena</string>
+    <string name="backup_started">Zálohuji…</string>
+    <string name="cancel">Zrušit</string>
+    <string name="backup_loaded">Data aktulizována ze zálohy</string>
+    <string name="backup_load_failed">Načítání zálohy selhalo</string>
+    <string name="backup_failed">Nahrávání zálohy selhalo</string>
+    <string name="button_backup_load">Načtení dat ze zálohy</string>
+    <string name="backup_loading">Stahuji zálohu…</string>
+    <string name="button_save_and_init">Ulož a nahraj na amulet</string>
+    <string name="check_network_connection">Zkontroluj připojení k internetu</string>
 </resources>

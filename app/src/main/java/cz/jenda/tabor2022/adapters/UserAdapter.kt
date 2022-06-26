@@ -7,7 +7,7 @@ import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.TextView
 import cz.jenda.tabor2022.R
-import cz.jenda.tabor2022.data.User
+import cz.jenda.tabor2022.data.model.User
 
 class UserAdapter(private val context: Activity, private val data: List<User>) :
     ArrayAdapter<User>(context, R.layout.user_entry) {

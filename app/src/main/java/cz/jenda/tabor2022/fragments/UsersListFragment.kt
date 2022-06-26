@@ -1,7 +1,6 @@
 package cz.jenda.tabor2022.fragments
 
 import android.content.Intent
-import android.nfc.tech.MifareClassic
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -14,17 +13,13 @@ import cz.jenda.tabor2022.Constants
 import cz.jenda.tabor2022.Extras.DATA_TO_WRITE_ON_TAG
 import cz.jenda.tabor2022.PortalApp
 import cz.jenda.tabor2022.R
-import cz.jenda.tabor2022.TagActions
-import cz.jenda.tabor2022.activities.BasicActivity
 import cz.jenda.tabor2022.activities.TagWriteActivity
-import cz.jenda.tabor2022.activities.TagsActivity
 import cz.jenda.tabor2022.adapters.UserAdapter
-import cz.jenda.tabor2022.data.User
+import cz.jenda.tabor2022.data.model.User
 import cz.jenda.tabor2022.data.proto.Portal
 import cz.jenda.tabor2022.data.proto.playerData
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.launch
-import java.util.*
 
 class UsersListFragment :
     BasicFragment() {
@@ -50,6 +45,7 @@ class UsersListFragment :
 
         launch {
             fetchData()
+            filteredUsers = users
             activity?.let { act -> act.runOnUiThread { list.adapter = UserAdapter(act, users) } }
         }
 
@@ -86,6 +82,7 @@ class UsersListFragment :
                         Log.d(Constants.AppTag, "Remove user/tag from menu")
                     }.onSuccess {
                         users = users.filter { it.id != user.id }
+                        refreshView()
                     }
                 }
             }
@@ -99,7 +96,7 @@ class UsersListFragment :
 
     private fun initTag(user: User) {
         val player = playerData {
-            userId = user.id
+            userId = user.id.toInt()
             strength = user.strength
             dexterity = user.dexterity
             magic = user.magic
@@ -150,6 +147,8 @@ class UsersListFragment :
         super.onResume()
         launch {
             fetchData()
+            filteredUsers = users
+            view?.findViewById<EditText>(R.id.search_bar)?.text = null
             refreshView()
         }
     }

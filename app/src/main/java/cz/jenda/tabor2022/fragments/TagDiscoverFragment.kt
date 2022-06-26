@@ -1,7 +1,6 @@
 package cz.jenda.tabor2022.fragments
 
 import android.app.Activity
-import android.app.Instrumentation
 import android.content.Intent
 import android.nfc.tech.MifareClassic
 import android.os.Bundle
@@ -24,9 +23,9 @@ import cz.jenda.tabor2022.TagActions
 import cz.jenda.tabor2022.activities.TagWriteActivity
 import cz.jenda.tabor2022.activities.TagsActivity
 import cz.jenda.tabor2022.data.Helpers
-import cz.jenda.tabor2022.data.User
+import cz.jenda.tabor2022.data.model.User
+import cz.jenda.tabor2022.data.model.UserAndSkills
 import cz.jenda.tabor2022.data.proto.Portal
-import java.lang.Compiler.enable
 
 
 class TagDiscoverFragment(activity: TagsActivity, private val actions: TagActions) :
@@ -34,14 +33,14 @@ class TagDiscoverFragment(activity: TagsActivity, private val actions: TagAction
 
     private var readTagData: Portal.PlayerData? = null
     private val builder: Portal.PlayerData.Builder = Portal.PlayerData.newBuilder()
-    private var user: User? = null
+    private var userWithSkills: UserAndSkills? = null
 
     private val startForResult =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult())
         { result: ActivityResult ->
             if (result.resultCode == Activity.RESULT_OK) {
                 readTagData = null
-                user = null
+                userWithSkills = null
                 builder.clear()
             }
             refreshView()
@@ -131,9 +130,9 @@ class TagDiscoverFragment(activity: TagsActivity, private val actions: TagAction
         if (tagData != null) {
             readTagData = tagData
 
-            user = PortalApp.instance.db.usersDao().getById(tagData.userId)
-            val isConsistent = if (user != null) {
-                Helpers.compare(user!!, tagData);
+            userWithSkills = PortalApp.instance.db.usersDao().getById(tagData.userId.toLong())
+            val isConsistent = if (userWithSkills != null) {
+                Helpers.compare(userWithSkills!!.user, tagData);
             } else false;
 
             if (!isConsistent) {
@@ -155,7 +154,7 @@ class TagDiscoverFragment(activity: TagsActivity, private val actions: TagAction
         } else {
             activity?.runOnUiThread {
                 view?.findViewById<TextView>(R.id.text_tag_read_error)?.text =
-                    getString(R.string.inconsistend_data)
+                    getString(R.string.read_tag_generic_error)
             }
         }
     }
@@ -182,7 +181,7 @@ class TagDiscoverFragment(activity: TagsActivity, private val actions: TagAction
 //            view?.findViewById<ConstraintLayout>(R.id.layout_tag_discovered)?.let {
 //                disableEnableControls(readTagData != null , it)
 //            }
-            view?.findViewById<TextView>(R.id.text_name)?.text = user?.name
+            view?.findViewById<TextView>(R.id.text_name)?.text = userWithSkills?.user?.name
             view?.findViewById<TextView>(R.id.text_strength)?.text = builder.strength.toString()
             view?.findViewById<TextView>(R.id.text_dexterity)?.text = builder.dexterity.toString()
             view?.findViewById<TextView>(R.id.text_magic)?.text = builder.magic.toString()

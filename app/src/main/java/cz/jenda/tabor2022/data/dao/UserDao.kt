@@ -1,7 +1,9 @@
 package cz.jenda.tabor2022.data.dao
 
 import androidx.room.*
-import cz.jenda.tabor2022.data.User
+import cz.jenda.tabor2022.data.model.Skill
+import cz.jenda.tabor2022.data.model.User
+import cz.jenda.tabor2022.data.model.UserAndSkills
 
 @Dao
 interface UserDao {
@@ -17,18 +19,24 @@ interface UserDao {
     @Query("SELECT * FROM users ORDER by name ASC")
     suspend fun getAll(): List<User>
 
-    @Query("SELECT * FROM users where id = :id limit 1")
-    suspend fun getById(id: Int): User
+    @Query("SELECT * FROM users ORDER by name ASC")
+    suspend fun getAllWithSkills(): List<UserAndSkills>
 
-    @Query("UPDATE users set strength = strength + :delta where id = :userId")
-    suspend fun adjustStrength(userId: Int, delta: Int)
+    @Query("SELECT * FROM users where user_id = :id limit 1")
+    suspend fun getById(id: Long): UserAndSkills
 
-    @Query("UPDATE users set dexterity = dexterity + :delta where id = :userId")
-    suspend fun adjustDexterity(userId: Int, delta: Int)
+    @Query("UPDATE users set strength = strength + :delta where user_id = :userId")
+    suspend fun adjustStrength(userId: Long, delta: Int)
 
-    @Query("UPDATE users set magic = magic + :delta where id = :userId")
-    suspend fun adjustMagic(userId: Int, delta: Int)
+    @Query("UPDATE users set dexterity = dexterity + :delta where user_id = :userId")
+    suspend fun adjustDexterity(userId: Long, delta: Int)
 
-    @Query("UPDATE users set bonus_points = bonus_points + :delta where id = :userId")
-    suspend fun adjustBonusPoints(userId: Int, delta: Int)
+    @Query("UPDATE users set magic = magic + :delta where user_id = :userId")
+    suspend fun adjustMagic(userId: Long, delta: Int)
+
+    @Query("UPDATE users set bonus_points = bonus_points + :delta where user_id = :userId")
+    suspend fun adjustBonusPoints(userId: Long, delta: Int)
+
+//    @Query("SELECT * FROM users WHERE id = :id ORDER BY name ASC")
+//    suspend fun getSkillsById(id: Int): List<Skill>
 }

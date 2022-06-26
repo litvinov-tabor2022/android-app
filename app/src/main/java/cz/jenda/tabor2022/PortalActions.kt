@@ -6,8 +6,8 @@ import android.util.Log
 import android.widget.Toast
 import androidx.room.withTransaction
 import cz.jenda.tabor2022.connection.PortalConnection
-import cz.jenda.tabor2022.data.GameTransaction
-import cz.jenda.tabor2022.data.User
+import cz.jenda.tabor2022.data.model.GameTransaction
+import cz.jenda.tabor2022.data.model.User
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.collect
 import kotlin.coroutines.CoroutineContext

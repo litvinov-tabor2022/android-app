@@ -1,6 +1,7 @@
-package cz.jenda.tabor2022.data
+package cz.jenda.tabor2022.data.model
 
 import androidx.room.*
+import cz.jenda.tabor2022.data.model.User
 import java.time.Instant
 
 @Entity(
@@ -8,7 +9,7 @@ import java.time.Instant
     indices = [Index(value = ["user_id"]), Index(value = ["time", "device_id"], unique = true)],
     foreignKeys = [ForeignKey(
         entity = User::class,
-        parentColumns = ["id"],
+        parentColumns = ["user_id"],
         childColumns = ["user_id"],
         onDelete = ForeignKey.CASCADE
     )]
@@ -19,7 +20,7 @@ data class GameTransaction(
     @ColumnInfo(name = "device_id")
     val deviceId: String,
     @ColumnInfo(name = "user_id")
-    val userId: Int,
+    val userId: Long,
     @ColumnInfo(name = "strength")
     val strength: Int,
     @ColumnInfo(name = "dexterity")

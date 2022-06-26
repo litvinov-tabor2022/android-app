@@ -12,7 +12,7 @@ import cz.jenda.tabor2022.Extras
 import cz.jenda.tabor2022.PortalApp
 import cz.jenda.tabor2022.R
 import cz.jenda.tabor2022.activities.TagWriteActivity
-import cz.jenda.tabor2022.data.User
+import cz.jenda.tabor2022.data.model.User
 import cz.jenda.tabor2022.data.proto.Portal
 import kotlinx.coroutines.launch
 

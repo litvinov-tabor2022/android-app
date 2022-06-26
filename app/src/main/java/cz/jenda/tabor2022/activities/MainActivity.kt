@@ -18,7 +18,7 @@ import kotlin.coroutines.CoroutineContext
 
 class MainActivity : AppCompatActivity(), CoroutineScope {
     private val rxPermissions = RxPermissions(this)
-    private lateinit var webDavClient: BackupClient
+    private lateinit var backupClient: BackupClient
 
     private var job: Job = Job()
 
@@ -31,7 +31,7 @@ class MainActivity : AppCompatActivity(), CoroutineScope {
 
         BackupClient.create(
             Uri.parse(BuildConfig.WEBDAV_ENDPOINT)
-        ).also { webDavClient = it }
+        ).also { backupClient = it }
 
         findViewById<Button>(R.id.button_sync)?.setOnClickListener {
             val intent = Intent(this, SynchronizeActivity::class.java)
@@ -49,63 +49,11 @@ class MainActivity : AppCompatActivity(), CoroutineScope {
         }
 
         findViewById<Button>(R.id.button_backup)?.setOnClickListener {
-            runOnUiThread {
-                Toast.makeText(applicationContext, R.string.backup_started, Toast.LENGTH_SHORT)
-                    .show()
-            }
-            launch {
-                runCatching { webDavClient.uploadBackup() }.onSuccess {
-                    runOnUiThread {
-                        Toast.makeText(applicationContext, R.string.backup_done, Toast.LENGTH_SHORT)
-                            .show()
-                    }
-                }.onFailure {
-                    runOnUiThread {
-                        Toast.makeText(
-                            applicationContext,
-                            R.string.backup_failed,
-                            Toast.LENGTH_SHORT
-                        )
-                            .show()
-                    }
-                    Log.e(Constants.AppTag, it.toString())
-                }
-            }
+           uploadBackup();
         }
 
         findViewById<Button>(R.id.button_load_from_backup)?.setOnClickListener {
-            launch {
-                runCatching {
-                    runOnUiThread {
-                        Toast.makeText(
-                            applicationContext,
-                            R.string.backup_loading,
-                            Toast.LENGTH_SHORT
-                        )
-                            .show()
-                    }
-                    webDavClient.applyBackup()
-                }.onSuccess {
-                    runOnUiThread {
-                        Toast.makeText(
-                            applicationContext,
-                            R.string.backup_loaded,
-                            Toast.LENGTH_SHORT
-                        )
-                            .show()
-                    }
-                }.onFailure {
-                    runOnUiThread {
-                        Toast.makeText(
-                            applicationContext,
-                            R.string.backup_load_failed,
-                            Toast.LENGTH_SHORT
-                        )
-                            .show()
-                    }
-                    Log.e(Constants.AppTag, it.toString())
-                }
-            }
+            downloadBackup();
         }
 
         rxPermissions.setLogging(true);
@@ -123,5 +71,87 @@ class MainActivity : AppCompatActivity(), CoroutineScope {
                     Toast.makeText(this, R.string.allow_all_permissions, Toast.LENGTH_SHORT).show()
                 }
             }
+    }
+
+    private fun downloadBackup(){
+        launch {
+            runCatching {
+                runOnUiThread {
+                    Toast.makeText(
+                        applicationContext,
+                        R.string.backup_loading,
+                        Toast.LENGTH_SHORT
+                    )
+                        .show()
+                }
+                backupClient.applyBackup()
+            }.onSuccess {
+                runOnUiThread {
+                    Toast.makeText(
+                        applicationContext,
+                        R.string.backup_loaded,
+                        Toast.LENGTH_SHORT
+                    )
+                        .show()
+                }
+            }.onFailure {
+                if(it is java.net.UnknownHostException || it is java.net.ConnectException) {
+                    runOnUiThread {
+                        Toast.makeText(
+                            applicationContext,
+                            R.string.check_network_connection,
+                            Toast.LENGTH_SHORT
+                        )
+                            .show()
+                    }
+                } else {
+                    runOnUiThread {
+                        Toast.makeText(
+                            applicationContext,
+                            R.string.backup_load_failed,
+                            Toast.LENGTH_SHORT
+                        )
+                            .show()
+                    }
+                }
+                Log.e(Constants.AppTag, it.javaClass.kotlin.toString())
+            }
+        }
+    }
+
+    private fun uploadBackup(){
+        runOnUiThread {
+            Toast.makeText(applicationContext, R.string.backup_started, Toast.LENGTH_SHORT)
+                .show()
+        }
+        launch {
+            runCatching { backupClient.uploadBackup() }.onSuccess {
+                runOnUiThread {
+                    Toast.makeText(applicationContext, R.string.backup_done, Toast.LENGTH_SHORT)
+                        .show()
+                }
+            }.onFailure {
+                if(it is java.net.UnknownHostException || it is java.net.ConnectException) {
+                    runOnUiThread {
+                        Toast.makeText(
+                            applicationContext,
+                            R.string.check_network_connection,
+                            Toast.LENGTH_SHORT
+                        )
+                            .show()
+                    }
+                } else {
+                    runOnUiThread {
+                        Toast.makeText(
+                            applicationContext,
+                            R.string.backup_failed,
+                            Toast.LENGTH_SHORT
+                        )
+                            .show()
+                    }
+                }
+                Log.e(Constants.AppTag, it.toString())
+            }
+        }
     }
 }

@@ -63,7 +63,6 @@ class SynchronizeActivity : AppCompatActivity(), CoroutineScope {
     override fun onStart() {
         super.onStart()
         rescan()
-
         // check periodically for disconnection
         kotlin.concurrent.timer("rescanConnectedPortals", false, 3000, 3000) {
             launch {

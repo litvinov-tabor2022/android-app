@@ -15,7 +15,9 @@ import cz.jenda.tabor2022.R
 import cz.jenda.tabor2022.TagActions
 import cz.jenda.tabor2022.activities.TagsActivity
 import cz.jenda.tabor2022.adapters.UserAdapter
-import cz.jenda.tabor2022.data.User
+import cz.jenda.tabor2022.data.model.User
+import cz.jenda.tabor2022.data.model.UserAndSkills
+import cz.jenda.tabor2022.data.proto.PlayerDataKt
 import cz.jenda.tabor2022.data.proto.Portal
 import cz.jenda.tabor2022.data.proto.playerData
 import kotlinx.coroutines.CompletableDeferred
@@ -24,7 +26,7 @@ import kotlinx.coroutines.launch
 class TagInitFragment(activity: TagsActivity, private val actions: TagActions) :
     TagAwareFragmentBase(activity) {
 
-    private lateinit var users: List<User>
+    private lateinit var users: List<UserAndSkills>
     private var waitingInit: WaitingInit? = null
 
     override fun onCreateView(
@@ -41,8 +43,12 @@ class TagInitFragment(activity: TagsActivity, private val actions: TagActions) :
         registerForContextMenu(list);
 
         launch {
-            users = PortalApp.instance.db.usersDao().getAll()
-            activity?.let { act -> act.runOnUiThread { list.adapter = UserAdapter(act, users) } }
+            users = PortalApp.instance.db.usersDao().getAllWithSkills()
+            activity?.let { act ->
+                act.runOnUiThread {
+                    list.adapter = UserAdapter(act, users.map { it.user })
+                }
+            }
         }
 
         list.onItemClickListener = AdapterView.OnItemClickListener { parent, view, position, id ->
@@ -58,9 +64,9 @@ class TagInitFragment(activity: TagsActivity, private val actions: TagActions) :
         super.onCreateContextMenu(menu, view, menuInfo)
         val list = view as ListView
         val info = menuInfo as AdapterContextMenuInfo
-        val user: User = users[info.position]
+        val userWithSkills: UserAndSkills = users[info.position]
         list.getItemAtPosition(info.position)
-        menu.setHeaderTitle(user.name)
+        menu.setHeaderTitle(userWithSkills.user.name)
         val inflater: MenuInflater? = activity?.menuInflater
         inflater?.inflate(R.menu.user_menu, menu)
     }
@@ -68,12 +74,12 @@ class TagInitFragment(activity: TagsActivity, private val actions: TagActions) :
     override fun onContextItemSelected(item: MenuItem): Boolean {
         super.onContextItemSelected(item)
         val info = item.menuInfo as AdapterContextMenuInfo
-        val user: User = users[info.position]
-        Log.d(Constants.AppTag, user.toString())
+        val userWithSkills: UserAndSkills = users[info.position]
+        Log.d(Constants.AppTag, userWithSkills.toString())
         when (item.itemId) {
             R.id.menu_item_init_tag -> {
                 Log.d(Constants.AppTag, "Init tag from menu")
-                launch { initTag(user) }
+                launch { initTag(userWithSkills) }
             }
             R.id.menu_item_remove_user -> {
                 Log.d(Constants.AppTag, "Remove user/tag from menu")
@@ -99,13 +105,14 @@ class TagInitFragment(activity: TagsActivity, private val actions: TagActions) :
         }
     }
 
-    private suspend fun initTag(user: User) {
+    private suspend fun initTag(userWithSkills: UserAndSkills) {
         val player = playerData {
-            userId = user.id
-            strength = user.strength
-            dexterity = user.dexterity
-            magic = user.magic
-            bonusPoints = user.bonusPoints
+            userId = userWithSkills.user.id.toInt()
+            strength = userWithSkills.user.strength
+            dexterity = userWithSkills.user.dexterity
+            magic = userWithSkills.user.magic
+            bonusPoints = userWithSkills.user.bonusPoints
+            skills.addAll(userWithSkills.skills.map { Portal.Skill.forNumber(it.id.toInt()) })
             secret = Constants.TagSecret
         }
 

@@ -8,9 +8,18 @@ import androidx.room.TypeConverters
 import cz.jenda.tabor2022.Constants.DbName
 import cz.jenda.tabor2022.data.dao.GameTransactionDao
 import cz.jenda.tabor2022.data.dao.UserDao
+import cz.jenda.tabor2022.data.model.*
 import java.io.File
 
-@Database(entities = [User::class, GameTransaction::class], version = 1)
+@Database(
+    entities = [
+        User::class,
+        GameTransaction::class,
+        Skill::class,
+        UserSkillCrossRef::class
+    ],
+    version = 2
+)
 @TypeConverters(Converters::class)
 abstract class AppDatabase : RoomDatabase() {
     companion object {

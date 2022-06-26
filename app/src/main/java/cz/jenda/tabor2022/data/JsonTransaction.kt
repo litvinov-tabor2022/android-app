@@ -6,7 +6,7 @@ import java.time.Instant
 data class JsonTransaction(
     @JsonProperty("time") val time: Instant,
     @JsonProperty("device_id") val deviceId: String,
-    @JsonProperty("user_id") val userId: Int,
+    @JsonProperty("user_id") val userId: Long,
     @JsonProperty("strength") val strength: Int = 0,
     @JsonProperty("dexterity") val dexterity: Int = 0,
     @JsonProperty("magic") val magic: Int = 0,

@@ -1,10 +1,11 @@
 package cz.jenda.tabor2022.data
 
+import cz.jenda.tabor2022.data.model.User
 import cz.jenda.tabor2022.data.proto.Portal
 
 object Helpers {
     fun compare(user: User, playerData: Portal.PlayerData): Boolean {
-        if (user.id != playerData.userId) return false;
+        if (user.id != playerData.userId.toLong()) return false;
         if (user.strength != playerData.strength) return false;
         if (user.magic != playerData.magic) return false;
         if (user.dexterity != playerData.dexterity) return false;
@@ -14,7 +15,7 @@ object Helpers {
 
     fun toUser(playerData: Portal.PlayerData): User {
         return User(
-            playerData.userId,
+            playerData.userId.toLong(),
             "N/A",
             playerData.strength,
             playerData.dexterity,

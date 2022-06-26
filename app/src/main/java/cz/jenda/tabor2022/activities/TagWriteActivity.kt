@@ -9,8 +9,9 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.room.withTransaction
 import cz.jenda.tabor2022.*
-import cz.jenda.tabor2022.data.GameTransaction
-import cz.jenda.tabor2022.data.User
+import cz.jenda.tabor2022.data.model.GameTransaction
+import cz.jenda.tabor2022.data.model.User
+import cz.jenda.tabor2022.data.model.UserAndSkills
 import cz.jenda.tabor2022.data.proto.Portal
 import cz.jenda.tabor2022.exception.TagCannotBeWritten
 import kotlinx.coroutines.launch
@@ -18,19 +19,19 @@ import java.time.Instant
 
 class TagWriteActivity : NfcActivityBase() {
     lateinit var playerData: Portal.PlayerData
-    var user: User? = null
+    var userWithSkills: UserAndSkills? = null
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_write_tag)
         playerData = intent.getSerializableExtra(Extras.DATA_TO_WRITE_ON_TAG) as Portal.PlayerData
         launch {
-            user = PortalApp.instance.db.usersDao().getById(
-                playerData.userId
+            userWithSkills = PortalApp.instance.db.usersDao().getById(
+                playerData.userId.toLong()
             )
             findViewById<TextView>(R.id.text_attach_tag)?.text =
                 getString(
                     R.string.write_to_tag,
-                    user?.name ?: throw TagCannotBeWritten("Invalid user")
+                    userWithSkills?.user?.name ?: throw TagCannotBeWritten("Invalid user")
                 )
 
         }
@@ -91,15 +92,15 @@ class TagWriteActivity : NfcActivityBase() {
     }
 
     private fun buildTransaction(): GameTransaction? {
-        return user?.let {
+        return userWithSkills?.let {
             GameTransaction(
                 time = Instant.now(),
-                userId = it.id,
+                userId = it.user.id,
                 deviceId = "",
-                strength = playerData.strength - it.strength,
-                dexterity = playerData.dexterity - it.dexterity,
-                magic = playerData.magic - it.magic,
-                bonusPoints = playerData.bonusPoints - it.bonusPoints,
+                strength = playerData.strength - it.user.strength,
+                dexterity = playerData.dexterity - it.user.dexterity,
+                magic = playerData.magic - it.user.magic,
+                bonusPoints = playerData.bonusPoints - it.user.bonusPoints,
                 skillId = 0
             )
         }
