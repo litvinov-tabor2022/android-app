@@ -3,6 +3,7 @@ package cz.jenda.tabor2022.activities
 import android.Manifest
 import android.content.Intent
 import android.net.Uri
+import android.nfc.NfcAdapter
 import android.os.Bundle
 import android.util.Log
 import android.widget.Button
@@ -49,7 +50,7 @@ class MainActivity : AppCompatActivity(), CoroutineScope {
         }
 
         findViewById<Button>(R.id.button_backup)?.setOnClickListener {
-           uploadBackup();
+            uploadBackup();
         }
 
         findViewById<Button>(R.id.button_load_from_backup)?.setOnClickListener {
@@ -73,7 +74,7 @@ class MainActivity : AppCompatActivity(), CoroutineScope {
             }
     }
 
-    private fun downloadBackup(){
+    private fun downloadBackup() {
         launch {
             runCatching {
                 runOnUiThread {
@@ -95,7 +96,7 @@ class MainActivity : AppCompatActivity(), CoroutineScope {
                         .show()
                 }
             }.onFailure {
-                if(it is java.net.UnknownHostException || it is java.net.ConnectException) {
+                if (it is java.net.UnknownHostException || it is java.net.ConnectException) {
                     runOnUiThread {
                         Toast.makeText(
                             applicationContext,
@@ -119,7 +120,7 @@ class MainActivity : AppCompatActivity(), CoroutineScope {
         }
     }
 
-    private fun uploadBackup(){
+    private fun uploadBackup() {
         runOnUiThread {
             Toast.makeText(applicationContext, R.string.backup_started, Toast.LENGTH_SHORT)
                 .show()
@@ -131,7 +132,7 @@ class MainActivity : AppCompatActivity(), CoroutineScope {
                         .show()
                 }
             }.onFailure {
-                if(it is java.net.UnknownHostException || it is java.net.ConnectException) {
+                if (it is java.net.UnknownHostException || it is java.net.ConnectException) {
                     runOnUiThread {
                         Toast.makeText(
                             applicationContext,
@@ -153,5 +154,18 @@ class MainActivity : AppCompatActivity(), CoroutineScope {
                 Log.e(Constants.AppTag, it.toString())
             }
         }
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        Log.i(Constants.AppTag, "Data from all portals deleted!")
+        Toast.makeText(applicationContext, intent.action.toString(), Toast.LENGTH_SHORT).show()
+//        if (NfcAdapter.ACTION_TAG_DISCOVERED == intent.action) {
+//            if (tagFromIntent?.techList?.contains(MifareClassic::class.qualifiedName) == true) {
+            Intent(this, UserDetailActivity::class.java).also {
+                startActivity(it)
+            }
+//            }
+//        }
     }
 }

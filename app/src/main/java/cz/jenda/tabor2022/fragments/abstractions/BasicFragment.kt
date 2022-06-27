@@ -1,4 +1,4 @@
-package cz.jenda.tabor2022.fragments
+package cz.jenda.tabor2022.fragments.abstractions
 
 import androidx.fragment.app.Fragment
 import kotlinx.coroutines.CoroutineScope

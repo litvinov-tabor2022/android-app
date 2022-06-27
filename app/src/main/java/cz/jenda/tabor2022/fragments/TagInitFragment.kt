@@ -5,29 +5,51 @@ import android.os.Bundle
 import android.util.Log
 import android.view.*
 import android.view.ContextMenu.ContextMenuInfo
-import android.widget.AdapterView
-import android.widget.AdapterView.AdapterContextMenuInfo
-import android.widget.ListView
 import android.widget.Toast
+import androidx.fragment.app.viewModels
 import cz.jenda.tabor2022.Constants
-import cz.jenda.tabor2022.PortalApp
 import cz.jenda.tabor2022.R
 import cz.jenda.tabor2022.TagActions
 import cz.jenda.tabor2022.activities.TagsActivity
-import cz.jenda.tabor2022.adapters.UserAdapter
-import cz.jenda.tabor2022.data.model.User
+import cz.jenda.tabor2022.adapters.OnItemShortClickListener
 import cz.jenda.tabor2022.data.model.UserAndSkills
-import cz.jenda.tabor2022.data.proto.PlayerDataKt
 import cz.jenda.tabor2022.data.proto.Portal
 import cz.jenda.tabor2022.data.proto.playerData
+import cz.jenda.tabor2022.fragments.abstractions.TagAwareFragmentBase
+import cz.jenda.tabor2022.fragments.abstractions.AbsUserListFragment
+import cz.jenda.tabor2022.viewmodel.UserViewModel
+import cz.jenda.tabor2022.viewmodel.UserViewModelFactory
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.launch
 
-class TagInitFragment(activity: TagsActivity, private val actions: TagActions) :
+class TagInitFragment(
+    activity: TagsActivity,
+    private val actions: TagActions
+) :
     TagAwareFragmentBase(activity) {
 
-    private lateinit var users: List<UserAndSkills>
     private var waitingInit: WaitingInit? = null
+
+    class UserList(val fragment: TagInitFragment) : AbsUserListFragment() {
+        override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+            super.onViewCreated(view, savedInstanceState)
+            userListAdapter.setOnItemClickListener(object :
+                OnItemShortClickListener<UserAndSkills> {
+                override fun itemShortClicked(item: UserAndSkills) {
+                    Log.i(Constants.AppTag, "About to initialize tag for $item")
+                    launch { fragment.initTag(item) }
+                }
+            })
+        }
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        childFragmentManager
+            .beginTransaction()
+            .add(R.id.users_list, UserList(this))
+            .commit()
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -38,53 +60,45 @@ class TagInitFragment(activity: TagsActivity, private val actions: TagActions) :
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        val list = view.findViewById<ListView>(R.id.users_list)
-
-        registerForContextMenu(list);
-
-        launch {
-            users = PortalApp.instance.db.usersDao().getAllWithSkills()
-            activity?.let { act ->
-                act.runOnUiThread {
-                    list.adapter = UserAdapter(act, users.map { it.user })
-                }
-            }
-        }
-
-        list.onItemClickListener = AdapterView.OnItemClickListener { parent, view, position, id ->
-            val user = users[position]
-
-            Log.i(Constants.AppTag, "About to initialize tag for $user")
-
-            launch { initTag(user) }
-        }
+        super.onViewCreated(view, savedInstanceState)
+//        val adapter = UserListAdapter(object : OnItemClickListener<UserAndSkills> {
+//            override fun onItemClick(item: UserAndSkills?) {
+//
+//            }
+//
+//        })
+//        listView.adapter = adapter
+//        listView.layoutManager = LinearLayoutManager(context)
+//        userViewModel.users.observe(viewLifecycleOwner) { users ->
+//            data = users
+//            users?.let { adapter.submitList(it.toMutableList()) }
+//            Log.i(Constants.AppTag, users.toString())
+//        }
     }
 
     override fun onCreateContextMenu(menu: ContextMenu, view: View, menuInfo: ContextMenuInfo?) {
-        super.onCreateContextMenu(menu, view, menuInfo)
-        val list = view as ListView
-        val info = menuInfo as AdapterContextMenuInfo
-        val userWithSkills: UserAndSkills = users[info.position]
-        list.getItemAtPosition(info.position)
-        menu.setHeaderTitle(userWithSkills.user.name)
-        val inflater: MenuInflater? = activity?.menuInflater
-        inflater?.inflate(R.menu.user_menu, menu)
+//        super.onCreateContextMenu(menu, view, menuInfo)
+//        val userWithSkills: UserAndSkills = users[info.position]
+//        list.getItemAtPosition(info.position)
+//        menu.setHeaderTitle(userWithSkills.user.name)
+//        val inflater: MenuInflater? = activity?.menuInflater
+//        inflater?.inflate(R.menu.user_menu, menu)
     }
 
     override fun onContextItemSelected(item: MenuItem): Boolean {
-        super.onContextItemSelected(item)
-        val info = item.menuInfo as AdapterContextMenuInfo
-        val userWithSkills: UserAndSkills = users[info.position]
-        Log.d(Constants.AppTag, userWithSkills.toString())
-        when (item.itemId) {
-            R.id.menu_item_init_tag -> {
-                Log.d(Constants.AppTag, "Init tag from menu")
-                launch { initTag(userWithSkills) }
-            }
-            R.id.menu_item_remove_user -> {
-                Log.d(Constants.AppTag, "Remove user/tag from menu")
-            }
-        }
+//        super.onContextItemSelected(item)
+//        val info = item.menuInfo as AdapterContextMenuInfo
+//        val userWithSkills: UserAndSkills = users[info.position]
+//        Log.d(Constants.AppTag, userWithSkills.toString())
+//        when (item.itemId) {
+//            R.id.menu_item_init_tag -> {
+//                Log.d(Constants.AppTag, "Init tag from menu")
+//                launch { initTag(userWithSkills) }
+//            }
+//            R.id.menu_item_remove_user -> {
+//                Log.d(Constants.AppTag, "Remove user/tag from menu")
+//            }
+//        }
         return true
     }
 
@@ -103,6 +117,10 @@ class TagInitFragment(activity: TagsActivity, private val actions: TagActions) :
             Log.v(Constants.AppTag, "nulling waitingInit")
             return
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
     }
 
     private suspend fun initTag(userWithSkills: UserAndSkills) {

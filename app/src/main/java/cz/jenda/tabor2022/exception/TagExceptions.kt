@@ -8,4 +8,6 @@ class TagCannotBeRead(message: String) : TagExceptions(message)
 
 class TagCannotBeWritten(message: String) : TagExceptions(message)
 
-class TagDataIsInconsistent(message: String): TagExceptions(message)
+class TagDataIsInconsistent(message: String) : TagExceptions(message)
+
+class WritingToTagBelongingAnotherUser(message: String) : TagExceptions(message)

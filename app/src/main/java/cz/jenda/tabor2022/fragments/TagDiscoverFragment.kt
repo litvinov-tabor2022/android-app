@@ -23,9 +23,10 @@ import cz.jenda.tabor2022.TagActions
 import cz.jenda.tabor2022.activities.TagWriteActivity
 import cz.jenda.tabor2022.activities.TagsActivity
 import cz.jenda.tabor2022.data.Helpers
-import cz.jenda.tabor2022.data.model.User
 import cz.jenda.tabor2022.data.model.UserAndSkills
 import cz.jenda.tabor2022.data.proto.Portal
+import cz.jenda.tabor2022.fragments.abstractions.TagAwareFragmentBase
+import kotlinx.coroutines.flow.first
 
 
 class TagDiscoverFragment(activity: TagsActivity, private val actions: TagActions) :
@@ -130,7 +131,7 @@ class TagDiscoverFragment(activity: TagsActivity, private val actions: TagAction
         if (tagData != null) {
             readTagData = tagData
 
-            userWithSkills = PortalApp.instance.db.usersDao().getById(tagData.userId.toLong())
+            userWithSkills = PortalApp.instance.db.usersDao().getById(tagData.userId.toLong()).first()
             val isConsistent = if (userWithSkills != null) {
                 Helpers.compare(userWithSkills!!.user, tagData);
             } else false;

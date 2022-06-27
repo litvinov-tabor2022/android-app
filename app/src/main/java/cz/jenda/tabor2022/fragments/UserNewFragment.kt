@@ -14,6 +14,7 @@ import cz.jenda.tabor2022.R
 import cz.jenda.tabor2022.activities.TagWriteActivity
 import cz.jenda.tabor2022.data.model.User
 import cz.jenda.tabor2022.data.proto.Portal
+import cz.jenda.tabor2022.fragments.abstractions.BasicFragment
 import kotlinx.coroutines.launch
 
 class UserNewFragment : BasicFragment() {

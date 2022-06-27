@@ -62,4 +62,15 @@
     <string name="backup_loading">Stahuji zálohu…</string>
     <string name="button_save_and_init">Ulož a nahraj na amulet</string>
     <string name="check_network_connection">Zkontroluj připojení k internetu</string>
+    <string name="strength_limit">Síla: %1$d</string>
+    <string name="magic_limit">Magie: %1$d</string>
+    <string name="dexterity_limit">Obratnost: %1$d</string>
+    <string name="userstab_header_skills">Schopnosti</string>
+    <string name="userdetail_tab_overview">Přehled</string>
+    <string name="user_skills_label">Získané schopnosti</string>
+    <string name="add">Přidej</string>
+    <string name="dialog_force_add_skill">Hráč nemá dostatečné vlastnosti pro tuto schopnost, opravdu ji cheš přidat?</string>
+    <string name="dialog_rewrite_tag">Snažíš se zapsat na amulet jiného hráče, opravdu to chceš?</string>
+    <string name="yes">Ano</string>
+    <string name="no">Ne</string>
 </resources>

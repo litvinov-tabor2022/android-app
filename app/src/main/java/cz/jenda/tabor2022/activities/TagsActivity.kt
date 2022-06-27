@@ -9,7 +9,7 @@ import cz.jenda.tabor2022.R
 import cz.jenda.tabor2022.adapters.TagsActivityPagerAdapter
 import cz.jenda.tabor2022.data.proto.Portal
 import cz.jenda.tabor2022.databinding.ActivityTagsBinding
-import cz.jenda.tabor2022.fragments.TagAwareFragmentBase
+import cz.jenda.tabor2022.fragments.abstractions.TagAwareFragmentBase
 
 class TagsActivity : NfcActivityBase() {
     private var currentFragment: TagAwareFragmentBase? = null

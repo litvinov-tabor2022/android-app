@@ -7,7 +7,9 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import cz.jenda.tabor2022.Constants.DbName
 import cz.jenda.tabor2022.data.dao.GameTransactionDao
+import cz.jenda.tabor2022.data.dao.SkillDao
 import cz.jenda.tabor2022.data.dao.UserDao
+import cz.jenda.tabor2022.data.dao.UserSkillCrossRefDao
 import cz.jenda.tabor2022.data.model.*
 import java.io.File
 
@@ -48,5 +50,7 @@ abstract class AppDatabase : RoomDatabase() {
     }
 
     abstract fun usersDao(): UserDao
+    abstract fun skillDao(): SkillDao
+    abstract fun userSkillCrossRefDao(): UserSkillCrossRefDao
     abstract fun transactionsDao(): GameTransactionDao
 }

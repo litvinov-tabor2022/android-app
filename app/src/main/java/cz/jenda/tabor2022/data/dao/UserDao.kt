@@ -1,9 +1,11 @@
 package cz.jenda.tabor2022.data.dao
 
+import androidx.lifecycle.LiveData
 import androidx.room.*
 import cz.jenda.tabor2022.data.model.Skill
 import cz.jenda.tabor2022.data.model.User
 import cz.jenda.tabor2022.data.model.UserAndSkills
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface UserDao {
@@ -17,13 +19,16 @@ interface UserDao {
     suspend fun remove(user: User)
 
     @Query("SELECT * FROM users ORDER by name ASC")
-    suspend fun getAll(): List<User>
+    fun getAll(): Flow<List<UserAndSkills>>
 
     @Query("SELECT * FROM users ORDER by name ASC")
     suspend fun getAllWithSkills(): List<UserAndSkills>
 
+//    @Query("SELECT * FROM users where user_id = :id limit 1")
+//    suspend fun getById(id: Long): UserAndSkills
+
     @Query("SELECT * FROM users where user_id = :id limit 1")
-    suspend fun getById(id: Long): UserAndSkills
+    fun getById(id: Long): Flow<UserAndSkills>
 
     @Query("UPDATE users set strength = strength + :delta where user_id = :userId")
     suspend fun adjustStrength(userId: Long, delta: Int)

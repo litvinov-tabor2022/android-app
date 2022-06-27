@@ -7,6 +7,9 @@ import android.os.Bundle
 import android.util.Log
 import android.widget.TextView
 import android.widget.Toast
+import androidx.fragment.app.DialogFragment
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.asLiveData
 import androidx.room.withTransaction
 import cz.jenda.tabor2022.*
 import cz.jenda.tabor2022.data.model.GameTransaction
@@ -14,32 +17,47 @@ import cz.jenda.tabor2022.data.model.User
 import cz.jenda.tabor2022.data.model.UserAndSkills
 import cz.jenda.tabor2022.data.proto.Portal
 import cz.jenda.tabor2022.exception.TagCannotBeWritten
+import cz.jenda.tabor2022.exception.WritingToTagBelongingAnotherUser
+import cz.jenda.tabor2022.fragments.TagInitFragment
+import cz.jenda.tabor2022.fragments.dialogs.AddSkillDialog
+import cz.jenda.tabor2022.fragments.dialogs.WriteToTagDialog
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import java.time.Instant
 
-class TagWriteActivity : NfcActivityBase() {
+class TagWriteActivity : NfcActivityBase(), WriteToTagDialog.WriteToTagDialogListener {
     lateinit var playerData: Portal.PlayerData
-    var userWithSkills: UserAndSkills? = null
+    lateinit var userWithSkills: UserAndSkills
+    private var waitingInit: WaitingResponse? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_write_tag)
         playerData = intent.getSerializableExtra(Extras.DATA_TO_WRITE_ON_TAG) as Portal.PlayerData
-        launch {
+        launch(Dispatchers.IO) {
             userWithSkills = PortalApp.instance.db.usersDao().getById(
                 playerData.userId.toLong()
-            )
+            ).first()
             findViewById<TextView>(R.id.text_attach_tag)?.text =
                 getString(
                     R.string.write_to_tag,
-                    userWithSkills?.user?.name ?: throw TagCannotBeWritten("Invalid user")
+                    userWithSkills.user.name ?: throw TagCannotBeWritten("Invalid user")
                 )
-
         }
 
     }
 
     override suspend fun onTagRead(tag: MifareClassic, tagData: Portal.PlayerData?) {
         runCatching {
+            if (tagData?.userId != playerData.userId) {
+                val dialog = WriteToTagDialog()
+                dialog.show(supportFragmentManager, "")
+                val def = CompletableDeferred<Unit>()
+                waitingInit = tagData?.let { WaitingResponse(it, def) }
+                runCatching { def.await() }.onFailure { throw WritingToTagBelongingAnotherUser("User decline changes") }
+            }
             actions.writeToTag(tag, playerData);
         }.onSuccess {
             runOnUiThread {
@@ -92,11 +110,11 @@ class TagWriteActivity : NfcActivityBase() {
     }
 
     private fun buildTransaction(): GameTransaction? {
-        return userWithSkills?.let {
+        return userWithSkills.let {
             GameTransaction(
                 time = Instant.now(),
                 userId = it.user.id,
-                deviceId = "",
+                deviceId = Constants.AppDeviceId,
                 strength = playerData.strength - it.user.strength,
                 dexterity = playerData.dexterity - it.user.dexterity,
                 magic = playerData.magic - it.user.magic,
@@ -105,4 +123,17 @@ class TagWriteActivity : NfcActivityBase() {
             )
         }
     }
+
+    override fun onDialogPositiveClick(dialog: DialogFragment) {
+        waitingInit?.def?.complete(Unit)
+    }
+
+    override fun onDialogNegativeClick(dialog: DialogFragment) {
+        waitingInit?.def?.completeExceptionally(WritingToTagBelongingAnotherUser("User decline changes"))
+    }
+
+    private data class WaitingResponse(
+        val data: Portal.PlayerData,
+        val def: CompletableDeferred<Unit>
+    )
 }
