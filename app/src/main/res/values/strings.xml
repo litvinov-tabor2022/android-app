@@ -14,7 +14,7 @@
     <string name="button_tags">Amulety</string>
     <string name="button_users">Hráči</string>
 
-    <string name="button_fetch_data">Stáhni data</string>
+    <string name="button_sync_data">Synchronizuj data</string>
     <string name="button_delete_data">Smaž data</string>
     <string name="button_fix_time">Nastav aktuální čas</string>
     <string name="button_init_tag">Inicializace tagu</string>

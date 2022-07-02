@@ -43,7 +43,7 @@ class SynchronizeActivity : AppCompatActivity(), CoroutineScope {
             launch { PortalActions.synchronizeTime(this@SynchronizeActivity, portals) }
         }
 
-        findViewById<Button>(R.id.buttonDownloadData).setOnClickListener {
+        findViewById<Button>(R.id.buttonSynchronizeData).setOnClickListener {
             launch { PortalActions.synchronizeData(this@SynchronizeActivity, portals) }
         }
 

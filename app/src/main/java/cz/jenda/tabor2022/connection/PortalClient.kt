@@ -1,7 +1,6 @@
 package cz.jenda.tabor2022.connection
 
 import `in`.abilng.ndjson.NdJsonObjectMapper
-import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.KotlinFeature
 import com.fasterxml.jackson.module.kotlin.KotlinModule
@@ -11,15 +10,15 @@ import cz.jenda.tabor2022.data.JsonStatus
 import cz.jenda.tabor2022.data.JsonTransaction
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.MultipartBody
 import okhttp3.OkHttpClient
+import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.ResponseBody
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.jackson.JacksonConverterFactory
-import retrofit2.http.DELETE
-import retrofit2.http.GET
-import retrofit2.http.PUT
-import retrofit2.http.Query
+import retrofit2.http.*
 import kotlin.streams.asSequence
 
 interface PortalClient {
@@ -63,6 +62,17 @@ interface PortalClient {
                 override suspend fun updateTime(unixSecs: Long) {
                     clientRaw.updateTime(unixSecs)
                 }
+
+                override suspend fun updateNamesMapping(rawBytes: ByteArray) {
+                    val part = MultipartBody.Part.createFormData(
+                        "file", "names.json", rawBytes.toRequestBody(
+                            "image/*".toMediaTypeOrNull(),
+                            0, rawBytes.size
+                        )
+                    )
+
+                    clientRaw.updateNamesMapping(part)
+                }
             }
         }
 
@@ -84,6 +94,7 @@ interface PortalClient {
     suspend fun fetchData(): Flow<JsonTransaction>
     suspend fun deleteData()
     suspend fun updateTime(unixSecs: Long)
+    suspend fun updateNamesMapping(rawBytes: ByteArray)
 }
 
 private interface PortalClientRaw {
@@ -98,4 +109,8 @@ private interface PortalClientRaw {
 
     @PUT("/time")
     suspend fun updateTime(@Query("secs") unixSecs: Long)
+
+    @Multipart
+    @POST("/resources/names")
+    suspend fun updateNamesMapping(@Part payload: MultipartBody.Part)
 }

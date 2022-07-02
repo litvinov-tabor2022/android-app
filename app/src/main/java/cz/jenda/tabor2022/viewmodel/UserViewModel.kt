@@ -5,11 +5,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.asLiveData
 import cz.jenda.tabor2022.PortalApp
-import cz.jenda.tabor2022.data.model.User
 import cz.jenda.tabor2022.data.model.UserAndSkills
 
 class UserViewModel : ViewModel() {
-        val users: LiveData<List<UserAndSkills>> = PortalApp.instance.db.usersDao().getAll().asLiveData()
+    val users: LiveData<List<UserAndSkills>> = PortalApp.instance.db.usersDao().getAll().asLiveData()
 }
 
 class UserViewModelFactory : ViewModelProvider.Factory {

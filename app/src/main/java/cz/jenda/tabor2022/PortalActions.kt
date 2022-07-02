@@ -5,11 +5,21 @@ import android.database.sqlite.SQLiteConstraintException
 import android.util.Log
 import android.widget.Toast
 import androidx.room.withTransaction
+import com.fasterxml.jackson.annotation.JsonInclude
+import com.fasterxml.jackson.annotation.JsonProperty
+import com.fasterxml.jackson.core.io.JsonStringEncoder
+import com.fasterxml.jackson.databind.DeserializationFeature
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.databind.SerializationFeature
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
+import com.fasterxml.jackson.module.kotlin.KotlinFeature
+import com.fasterxml.jackson.module.kotlin.KotlinModule
 import cz.jenda.tabor2022.connection.PortalConnection
 import cz.jenda.tabor2022.data.model.GameTransaction
 import cz.jenda.tabor2022.data.model.User
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.first
 import kotlin.coroutines.CoroutineContext
 
 object PortalActions : CoroutineScope {
@@ -18,6 +28,20 @@ object PortalActions : CoroutineScope {
     override val coroutineContext: CoroutineContext
         get() = Dispatchers.IO + job
 
+    private val jsonMapper = ObjectMapper()
+        .registerModule(
+            KotlinModule.Builder()
+                .withReflectionCacheSize(512)
+                .configure(KotlinFeature.NullToEmptyCollection, false)
+                .configure(KotlinFeature.NullToEmptyMap, false)
+                .configure(KotlinFeature.NullIsSameAsDefault, false)
+                .configure(KotlinFeature.StrictNullChecks, false)
+                .build()
+        )
+        .registerModule(JavaTimeModule())
+        .configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
+        .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+        .setSerializationInclusion(JsonInclude.Include.NON_NULL)
 
     suspend fun synchronizeTime(ctx: Context, portals: Set<PortalConnection>) {
         val currentTime = System.currentTimeMillis() / 1000
@@ -54,12 +78,22 @@ object PortalActions : CoroutineScope {
 
         val failures = mutableListOf<String>()
 
+        // TODO delete
         PortalApp.instance.db.usersDao().save(User(137, "Jenda", 10, 10, 10, 0))
 
+        val namesMapping = jsonMapper.writeValueAsBytes(PortalApp.instance.db.usersDao().getAll().first().map { u ->
+            JsonNameMapping(u.user.id, u.user.name, 1) // TODO group from user
+        })
+
         for (conn in portals) {
-            runCatching { synchronizeData(conn) }.onFailure { e ->
+            runCatching { synchronizeTransactions(conn) }.onFailure { e ->
                 failures += conn.deviceId
                 Log.w(Constants.AppTag, "Could not synchronize data from $conn", e)
+            }.onSuccess {
+                JsonStringEncoder.getInstance().runCatching { updateNamesMapping(conn, namesMapping) }.onFailure { e ->
+                    failures += conn.deviceId
+                    Log.w(Constants.AppTag, "Could not synchronize names mapping to $conn", e)
+                }
             }
         }
 
@@ -107,7 +141,13 @@ object PortalActions : CoroutineScope {
         }
     }
 
-    private suspend fun synchronizeData(portal: PortalConnection) {
+    private suspend fun updateNamesMapping(portal: PortalConnection, data: ByteArray) {
+        Log.d(Constants.AppTag, "Synchronizing names mapping to $portal")
+
+        portal.client.updateNamesMapping(data)
+    }
+
+    private suspend fun synchronizeTransactions(portal: PortalConnection) {
         Log.d(Constants.AppTag, "Synchronizing data from $portal")
 
         portal.client.fetchData().collect { transaction ->
@@ -127,7 +167,7 @@ object PortalActions : CoroutineScope {
                             dexterity = transaction.dexterity,
                             magic = transaction.magic,
                             bonusPoints = transaction.bonusPoints,
-                            skillId =  transaction.skill,
+                            skillId = transaction.skill,
                         )
                     )
 
@@ -159,3 +199,12 @@ object PortalActions : CoroutineScope {
         }
     }
 }
+
+data class JsonNameMapping(
+    @JsonProperty("id")
+    val id: Long,
+    @JsonProperty("name")
+    val name: String,
+    @JsonProperty("group")
+    val group: Int,
+)
