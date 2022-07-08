@@ -5,7 +5,7 @@ import androidx.room.Entity
 import androidx.room.Junction
 import androidx.room.Relation
 
-data class UserAndSkills(
+data class UserWithSkills(
     @Embedded
     val user: User,
     @Relation(
@@ -16,7 +16,7 @@ data class UserAndSkills(
     val skills: List<Skill>,
 )
 
-data class SkillsAndUser(
+data class SkillWithUsers(
     @Embedded
     val skill: Skill,
     @Relation(

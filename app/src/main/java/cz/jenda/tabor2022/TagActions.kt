@@ -37,6 +37,29 @@ class TagActions(
 
     suspend fun handleIntent(intent: Intent?) {
         when (intent?.action) {
+            NfcAdapter.ACTION_TECH_DISCOVERED -> {
+                intent.getParcelableExtra<Tag>(NfcAdapter.EXTRA_TAG)?.let { tag ->
+                    Log.d(Constants.AppTag, "Inserted tag, reading data")
+
+                    val (mifare, resp) = readTag(tag)
+                    if (resp.dataIsValid) {
+                        runCatching {
+                            withContext(Dispatchers.IO) {
+                                val istream = ByteArrayInputStream(resp.data)
+                                val playerData = Portal.PlayerData.parseDelimitedFrom(istream)
+                                Log.v(Constants.AppTag, "Loaded PlayerData: $playerData")
+                                playerData
+                            }
+                        }.onSuccess { onTagRead(mifare, it) }.onFailure { e ->
+                            Log.d(Constants.AppTag, "Inserted tag couldn't be read/parsed", e)
+                            onTagRead(mifare, null)
+                        }
+                    } else {
+                        Log.d(Constants.AppTag, "Inserted tag couldn't be read")
+                        onTagRead(mifare, null)
+                    }
+                }
+            }
             NfcAdapter.ACTION_TAG_DISCOVERED -> {
                 intent.getParcelableExtra<Tag>(NfcAdapter.EXTRA_TAG)?.let { tag ->
                     Log.d(Constants.AppTag, "Inserted tag, reading data")
@@ -118,7 +141,11 @@ class TagActions(
                 sectorAuthenticated =
                     if (mifare.authenticateSectorWithKeyA(sectorIndex, Constants.MifareKey1)) {
                         true
-                    } else if (mifare.authenticateSectorWithKeyA(sectorIndex, Constants.MifareKey2)) {
+                    } else if (mifare.authenticateSectorWithKeyA(
+                            sectorIndex,
+                            Constants.MifareKey2
+                        )
+                    ) {
                         true
                     } else {
                         return null
@@ -138,7 +165,7 @@ class TagActions(
 
     @Throws(IOException::class)
     private fun readBlock(mifare: MifareClassic, blockIndex: Int): ByteArray? {
-        return mifare.readBlock(blockIndex)?.copyOf();
+        return mifare.readBlock(blockIndex)?.copyOf()
     }
 
     private suspend fun writeToTag(mifare: MifareClassic, data: ByteArray) {
@@ -147,7 +174,10 @@ class TagActions(
 
         // read the tag again and verify
         val reread = readRaw(mifare)?.take(data.size)?.toByteArray()
-        Log.d(Constants.AppTag, "Verifying data on tag: written ${data.toHex()}, read ${reread?.toHex()}")
+        Log.d(
+            Constants.AppTag,
+            "Verifying data on tag: written ${data.toHex()}, read ${reread?.toHex()}"
+        )
         if (!reread.contentEquals(data)) {
             throw TagCannotBeWritten("Data written to tag couldn't be verified")
         }
@@ -168,16 +198,21 @@ class TagActions(
                 if (!sectorAuthenticated) {
                     if (mifare.authenticateSectorWithKeyA(sectorIndex, Constants.MifareKey1)) {
                         sectorAuthenticated = true
-                    } else if (mifare.authenticateSectorWithKeyA(sectorIndex, Constants.MifareKey2)) {
+                    } else if (mifare.authenticateSectorWithKeyA(
+                            sectorIndex,
+                            Constants.MifareKey2
+                        )
+                    ) {
                         sectorAuthenticated = true
                     } else {
                         return@withContext false
                     }
                 }
-                val bytesToWrite = if ((data.size - bytesWritten) < 16) (data.size - bytesWritten) else 16
-                val dataToWrite = data.copyOfRange(bytesWritten, bytesWritten + bytesToWrite);
+                val bytesToWrite =
+                    if ((data.size - bytesWritten) < 16) (data.size - bytesWritten) else 16
+                val dataToWrite = data.copyOfRange(bytesWritten, bytesWritten + bytesToWrite)
                 writeBlock(mifare, blockIndex, dataToWrite)
-                bytesWritten += bytesToWrite;
+                bytesWritten += bytesToWrite
                 blockIndex++
             }
 

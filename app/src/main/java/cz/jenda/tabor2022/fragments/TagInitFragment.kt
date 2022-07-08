@@ -12,13 +12,14 @@ import cz.jenda.tabor2022.R
 import cz.jenda.tabor2022.TagActions
 import cz.jenda.tabor2022.activities.TagsActivity
 import cz.jenda.tabor2022.adapters.OnItemShortClickListener
-import cz.jenda.tabor2022.data.model.UserAndSkills
+import cz.jenda.tabor2022.data.model.UserWithSkills
+import cz.jenda.tabor2022.data.model.UserWithGroup
 import cz.jenda.tabor2022.data.proto.Portal
 import cz.jenda.tabor2022.data.proto.playerData
 import cz.jenda.tabor2022.fragments.abstractions.TagAwareFragmentBase
 import cz.jenda.tabor2022.fragments.abstractions.AbsUserListFragment
+import cz.jenda.tabor2022.viewmodel.AllUsersViewModelFactory
 import cz.jenda.tabor2022.viewmodel.UserViewModel
-import cz.jenda.tabor2022.viewmodel.UserViewModelFactory
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.launch
 
@@ -31,13 +32,14 @@ class TagInitFragment(
     private var waitingInit: WaitingInit? = null
 
     class UserList(val fragment: TagInitFragment) : AbsUserListFragment() {
+        override val viewModel: UserViewModel by viewModels { AllUsersViewModelFactory() }
         override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
             super.onViewCreated(view, savedInstanceState)
-            userListAdapter.setOnItemClickListener(object :
-                OnItemShortClickListener<UserAndSkills> {
-                override fun itemShortClicked(item: UserAndSkills) {
+            listAdapter.setOnItemClickListener(object :
+                OnItemShortClickListener<UserWithGroup> {
+                override fun itemShortClicked(item: UserWithGroup) {
                     Log.i(Constants.AppTag, "About to initialize tag for $item")
-                    launch { fragment.initTag(item) }
+                    launch { fragment.initTag(item.userWithSkills) }
                 }
             })
         }
@@ -57,23 +59,6 @@ class TagInitFragment(
         savedInstanceState: Bundle?
     ): View {
         return inflater.inflate(R.layout.fragment_tag_init, container, false)
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-//        val adapter = UserListAdapter(object : OnItemClickListener<UserAndSkills> {
-//            override fun onItemClick(item: UserAndSkills?) {
-//
-//            }
-//
-//        })
-//        listView.adapter = adapter
-//        listView.layoutManager = LinearLayoutManager(context)
-//        userViewModel.users.observe(viewLifecycleOwner) { users ->
-//            data = users
-//            users?.let { adapter.submitList(it.toMutableList()) }
-//            Log.i(Constants.AppTag, users.toString())
-//        }
     }
 
     override fun onCreateContextMenu(menu: ContextMenu, view: View, menuInfo: ContextMenuInfo?) {
@@ -119,11 +104,7 @@ class TagInitFragment(
         }
     }
 
-    override fun onResume() {
-        super.onResume()
-    }
-
-    private suspend fun initTag(userWithSkills: UserAndSkills) {
+    private suspend fun initTag(userWithSkills: UserWithSkills) {
         val player = playerData {
             userId = userWithSkills.user.id.toInt()
             strength = userWithSkills.user.strength

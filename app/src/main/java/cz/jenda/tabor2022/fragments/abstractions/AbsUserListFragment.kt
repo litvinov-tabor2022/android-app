@@ -10,7 +10,6 @@ import android.view.View
 import android.widget.AdapterView.AdapterContextMenuInfo
 import android.widget.EditText
 import android.widget.ListView
-import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import cz.jenda.tabor2022.Constants
 import cz.jenda.tabor2022.Extras.DATA_TO_WRITE_ON_TAG
@@ -18,34 +17,33 @@ import cz.jenda.tabor2022.R
 import cz.jenda.tabor2022.activities.TagWriteActivity
 import cz.jenda.tabor2022.adapters.UserListAdapter
 import cz.jenda.tabor2022.data.model.User
-import cz.jenda.tabor2022.data.model.UserAndSkills
+import cz.jenda.tabor2022.data.model.UserWithGroup
 import cz.jenda.tabor2022.data.proto.playerData
 import cz.jenda.tabor2022.fragments.SearchableListFragment
 import cz.jenda.tabor2022.viewmodel.UserViewModel
-import cz.jenda.tabor2022.viewmodel.UserViewModelFactory
 import kotlinx.coroutines.launch
 
 abstract class AbsUserListFragment :
-    SearchableListFragment<UserAndSkills>(R.id.search_bar) {
+    SearchableListFragment<UserWithGroup>(R.id.search_bar) {
 
-    private val userViewModel: UserViewModel by viewModels { UserViewModelFactory() }
-    lateinit var userListAdapter: UserListAdapter
+    protected abstract val viewModel: UserViewModel
+    lateinit var listAdapter: UserListAdapter
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        userListAdapter = UserListAdapter()
+        listAdapter = UserListAdapter()
 
-        listView.adapter = userListAdapter
+        listView.adapter = listAdapter
         listView.layoutManager = LinearLayoutManager(context)
 
-        userViewModel.users.observe(viewLifecycleOwner) { users ->
+        viewModel.usersDataSource.observe(viewLifecycleOwner) { users ->
             data = users
-            users?.let { userListAdapter.submitList(it.toMutableList()) }
-            Log.i(Constants.AppTag, users.toString())
+            users?.let { listAdapter.submitList(it.toMutableList()) }
+            Log.i(Constants.AppTag, "Updating users list: $users")
         }
 
         filteredData.observe(viewLifecycleOwner) { skills ->
-            skills?.let { userListAdapter.submitList(it.toMutableList()) }
+            skills?.let { listAdapter.submitList(it.toMutableList()) }
         }
 
         registerForContextMenu(listView)
@@ -101,9 +99,9 @@ abstract class AbsUserListFragment :
         startActivity(intent)
     }
 
-    override fun filter(text: CharSequence, data: List<UserAndSkills>): List<UserAndSkills> {
+    override fun filter(text: CharSequence, data: List<UserWithGroup>): List<UserWithGroup> {
         return data.filter { user ->
-            text.let { user.user.name.contains(it, ignoreCase = true) }
+            text.let { user.userWithSkills.user.name.contains(it, ignoreCase = true) }
         }
     }
 
@@ -113,6 +111,5 @@ abstract class AbsUserListFragment :
             view?.findViewById<EditText>(R.id.search_bar)?.text = null
         }
     }
-
 }
 

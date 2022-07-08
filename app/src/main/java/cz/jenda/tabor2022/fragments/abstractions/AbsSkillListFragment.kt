@@ -6,12 +6,12 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import cz.jenda.tabor2022.R
 import cz.jenda.tabor2022.adapters.SkillListAdapter
 import cz.jenda.tabor2022.data.model.Skill
-import cz.jenda.tabor2022.data.model.UserAndSkills
+import cz.jenda.tabor2022.data.model.UserWithGroup
 import cz.jenda.tabor2022.fragments.SearchableListFragment
 import cz.jenda.tabor2022.viewmodel.AbsSkillViewModel
 
 abstract class AbsSkillListFragment(
-    private val user: UserAndSkills?,
+    private val user: UserWithGroup?,
     private val skillViewModel: AbsSkillViewModel,
 ) :
     SearchableListFragment<Skill>(R.id.search_bar) {
@@ -32,7 +32,7 @@ abstract class AbsSkillListFragment(
             skills?.let { skillListAdapter.submitList(it.toMutableList()) }
         }
 
-        registerForContextMenu(listView);
+        registerForContextMenu(listView)
     }
 
     override fun filter(text: CharSequence, data: List<Skill>): List<Skill> {

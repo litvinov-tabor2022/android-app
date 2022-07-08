@@ -4,7 +4,6 @@ import android.content.Context
 import android.database.sqlite.SQLiteConstraintException
 import android.util.Log
 import android.widget.Toast
-import androidx.room.withTransaction
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.core.io.JsonStringEncoder
@@ -15,11 +14,13 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.KotlinFeature
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import cz.jenda.tabor2022.connection.PortalConnection
+import cz.jenda.tabor2022.data.Helpers.execute
 import cz.jenda.tabor2022.data.model.GameTransaction
 import cz.jenda.tabor2022.data.model.User
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.first
+import kotlinx.datetime.toKotlinInstant
 import kotlin.coroutines.CoroutineContext
 
 object PortalActions : CoroutineScope {
@@ -79,21 +80,23 @@ object PortalActions : CoroutineScope {
         val failures = mutableListOf<String>()
 
         // TODO delete
-        PortalApp.instance.db.usersDao().save(User(137, "Jenda", 10, 10, 10, 0))
+        PortalApp.instance.db.usersDao().save(User(137, "Jenda", 10, 10, 10, 0, null))
 
-        val namesMapping = jsonMapper.writeValueAsBytes(PortalApp.instance.db.usersDao().getAll().first().map { u ->
-            JsonNameMapping(u.user.id, u.user.name, 1) // TODO group from user
-        })
+        val namesMapping = jsonMapper.writeValueAsBytes(
+            PortalApp.instance.db.usersDao().getAll().first().map { u ->
+                JsonNameMapping(u.userWithSkills.user.id, u.userWithSkills.user.name, 1) // TODO group from user
+            })
 
         for (conn in portals) {
             runCatching { synchronizeTransactions(conn) }.onFailure { e ->
                 failures += conn.deviceId
                 Log.w(Constants.AppTag, "Could not synchronize data from $conn", e)
             }.onSuccess {
-                JsonStringEncoder.getInstance().runCatching { updateNamesMapping(conn, namesMapping) }.onFailure { e ->
-                    failures += conn.deviceId
-                    Log.w(Constants.AppTag, "Could not synchronize names mapping to $conn", e)
-                }
+                JsonStringEncoder.getInstance()
+                    .runCatching { updateNamesMapping(conn, namesMapping) }.onFailure { e ->
+                        failures += conn.deviceId
+                        Log.w(Constants.AppTag, "Could not synchronize names mapping to $conn", e)
+                    }
             }
         }
 
@@ -152,38 +155,17 @@ object PortalActions : CoroutineScope {
 
         portal.client.fetchData().collect { transaction ->
             runCatching {
-                val DB = PortalApp.instance.db
-                val userId = transaction.userId
-
                 Log.v(Constants.AppTag, "Transaction from $portal: $transaction")
-
-                DB.withTransaction {
-                    DB.transactionsDao().save(
-                        GameTransaction(
-                            time = transaction.time,
-                            userId = userId,
-                            deviceId = transaction.deviceId,
-                            strength = transaction.strength,
-                            dexterity = transaction.dexterity,
-                            magic = transaction.magic,
-                            bonusPoints = transaction.bonusPoints,
-                            skillId = transaction.skill,
-                        )
-                    )
-
-                    if (transaction.strength != 0) {
-                        DB.usersDao().adjustStrength(userId, transaction.strength)
-                    }
-                    if (transaction.dexterity != 0) {
-                        DB.usersDao().adjustDexterity(userId, transaction.dexterity)
-                    }
-                    if (transaction.magic != 0) {
-                        DB.usersDao().adjustMagic(userId, transaction.magic)
-                    }
-                    if (transaction.bonusPoints != 0) {
-                        DB.usersDao().adjustBonusPoints(userId, transaction.bonusPoints)
-                    }
-                }
+                GameTransaction(
+                    time = transaction.time.toKotlinInstant(),
+                    userId = transaction.userId,
+                    deviceId = transaction.deviceId,
+                    strength = transaction.strength,
+                    dexterity = transaction.dexterity,
+                    magic = transaction.magic,
+                    bonusPoints = transaction.bonusPoints,
+                    skillId = transaction.skill,
+                ).execute()
             }.onFailure { e ->
                 when (e) {
                     is SQLiteConstraintException -> {

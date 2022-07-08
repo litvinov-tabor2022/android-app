@@ -99,7 +99,7 @@ class UserNewFragment : BasicFragment() {
         runCatching {
             Log.d("database", PortalApp.instance.dbPath)
             userId = PortalApp.instance.db.usersDao()
-                .create(User(0, name, data.strength, data.dexterity, data.magic, data.bonusPoints))
+                .create(User(0, name, data.strength, data.dexterity, data.magic, data.bonusPoints, null))
         }
             .onSuccess {
                 activity?.runOnUiThread {

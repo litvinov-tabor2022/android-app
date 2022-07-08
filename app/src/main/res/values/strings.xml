@@ -1,9 +1,9 @@
 <resources>
-    <string name="app_name">Portál</string>
+    <string name="app_name">Portál - Brány Skeldalu</string>
 
     <string name="tagstab_header_init">Init</string>
-    <string name="tagstab_header_discover">Main</string>
-    <string name="userstab_header_new">Nový</string>
+    <string name="tagstab_header_discover">Amulet</string>
+    <string name="userstab_header_new">Nový hráč</string>
 
     <string name="allow_all_permissions">Povol všechna oprávnění!!!</string>
     <string name="tag_init_insert_tag">Přilož amulet</string>
@@ -11,8 +11,8 @@
     <string name="tag_init_failure">Chyba inicializace amuletu!</string>
 
     <string name="button_synchronization">Synchronizace</string>
-    <string name="button_tags">Amulety</string>
-    <string name="button_users">Hráči</string>
+    <string name="button_batch">Dávka</string>
+    <string name="button_users_and_skills">Hráči a schopnosti</string>
 
     <string name="button_sync_data">Synchronizuj data</string>
     <string name="button_delete_data">Smaž data</string>
@@ -49,7 +49,7 @@
     <string name="writing_data_failed">Zápis dat na tag selhal. Opakujte pokus.</string>
     <string name="inconsistend_data">Data na tagu a v zařízení nejsou konzistentní. Inicializujte tag znovu.</string>
     <string name="remove">Smazat</string>
-    <string name="userstab_header_list">Seznam</string>
+    <string name="userstab_header_list">Hráči</string>
     <string name="search_hint">vyhledávání</string>
     <string name="button_backup">Záloha</string>
     <string name="backup_done">Záloha dokončena</string>
@@ -73,4 +73,9 @@
     <string name="dialog_rewrite_tag">Snažíš se zapsat na amulet jiného hráče, opravdu to chceš?</string>
     <string name="yes">Ano</string>
     <string name="no">Ne</string>
+    <string name="player_group">Skupina</string>
+    <string name="total_amount_of_points">Celkový počet bodů:</string>
+    <string name="group_header">Skupina</string>
+    <string name="groups_header">Skupiny</string>
+    <string name="rank_header">Umístění</string>
 </resources>

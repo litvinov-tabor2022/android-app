@@ -9,7 +9,11 @@
 
         <variable
             name="userWithSkills"
-            type="cz.jenda.tabor2022.data.model.UserAndSkills" />
+            type="cz.jenda.tabor2022.data.model.UserWithGroup" />
+
+        <variable
+            name="builder"
+            type="cz.jenda.tabor2022.data.proto.Portal.PlayerData.Builder" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -34,7 +38,7 @@
                 android:layout_height="wrap_content"
                 android:autofillHints="jméno"
                 android:hint="jméno"
-                android:text="@{userWithSkills.user.name}"
+                android:text="@{userWithSkills.userWithSkills.user.name}"
                 android:textAlignment="center"
                 android:textSize="48sp"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -42,11 +46,40 @@
                 app:layout_constraintTop_toTopOf="parent" />
 
             <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/layout_group"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                app:layout_constraintTop_toBottomOf="@id/text_name">
+
+                <TextView
+                    android:id="@+id/player_group_info"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/player_group"
+                    android:textSize="12sp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent" />
+
+                <TextView
+                    android:id="@+id/text_group"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text='@{String.valueOf(userWithSkills.group.name ?? "neznámá")}'
+                    android:textSize="25sp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/player_group_info"
+                    app:layout_constraintVertical_bias="0.0" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/layout_strength"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/text_name">
+                app:layout_constraintTop_toBottomOf="@id/layout_group">
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -63,7 +96,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="8dp"
-                    android:text="@{String.valueOf(userWithSkills.user.strength)}"
+                    android:text="@{String.valueOf(builder.strength)}"
                     android:textColor="@android:color/black"
                     android:textSize="34sp"
                     app:layout_constraintBottom_toBottomOf="parent"
@@ -127,7 +160,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="8dp"
-                    android:text="@{String.valueOf(userWithSkills.user.dexterity)}"
+                    android:text="@{String.valueOf(builder.dexterity)}"
                     android:textColor="@android:color/black"
                     android:textSize="34sp"
                     app:layout_constraintBottom_toBottomOf="parent"
@@ -191,7 +224,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="8dp"
-                    android:text="@{String.valueOf(userWithSkills.user.magic)}"
+                    android:text="@{String.valueOf(builder.magic)}"
                     android:textColor="@android:color/black"
                     android:textSize="34sp"
                     app:layout_constraintBottom_toBottomOf="parent"
@@ -237,7 +270,7 @@
                 android:id="@+id/layout_bonus_points"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                app:layout_constraintEnd_toStartOf="@id/skills_view_layout"
+                app:layout_constraintEnd_toStartOf="@id/layout_group"
                 app:layout_constraintTop_toBottomOf="@id/layout_magic">
 
                 <TextView
@@ -255,7 +288,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="8dp"
-                    android:text="@{String.valueOf(userWithSkills.user.bonusPoints)}"
+                    android:text="@{String.valueOf(builder.bonusPoints)}"
                     android:textColor="@android:color/black"
                     android:textSize="34sp"
                     app:layout_constraintBottom_toBottomOf="parent"

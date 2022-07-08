@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    app:layout_constraintHeight_default="spread"
+    android:fitsSystemWindows="true">
+
+    <data>
+
+        <variable
+            name="viewModel"
+            type="cz.jenda.tabor2022.viewmodel.GroupDetailViewModel" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/layouts_group_overview"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <TextView
+                android:id="@+id/text_name"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:hint="název"
+                android:text="@{viewModel.statistics.group.name}"
+                android:textAlignment="center"
+                android:textSize="48sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/label_total_amount_of_points"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text='Celkový počet bodů'
+                android:textAlignment="center"
+                android:textSize="24sp"
+                app:layout_constraintEnd_toStartOf="@id/total_amount_of_points"
+                app:layout_constraintTop_toBottomOf="@id/text_name" />
+
+            <TextView
+                android:id="@+id/total_amount_of_points"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:hint="0"
+                android:minWidth="150sp"
+                android:text='@{String.valueOf(viewModel.statistics.totalPoints())}'
+                android:textAlignment="center"
+                android:textSize="24sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/text_name" />
+
+            <TextView
+                android:id="@+id/label_number_of_users"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text='Počet hráčů'
+                android:textAlignment="center"
+                android:textSize="24sp"
+                app:layout_constraintEnd_toStartOf="@id/number_of_users"
+                app:layout_constraintTop_toBottomOf="@id/label_total_amount_of_points" />
+
+            <TextView
+                android:id="@+id/number_of_users"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:hint="0"
+                android:minWidth="150sp"
+                android:text='@{String.valueOf(viewModel.statistics.noMembers())}'
+                android:textAlignment="center"
+                android:textSize="24sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/total_amount_of_points" />
+
+            <TextView
+                android:id="@+id/label_rank"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text='Umístění'
+                android:textAlignment="center"
+                android:textSize="24sp"
+                app:layout_constraintEnd_toStartOf="@id/rank"
+                app:layout_constraintTop_toBottomOf="@id/label_number_of_users" />
+
+            <TextView
+                android:id="@+id/rank"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:hint="0"
+                android:minWidth="150sp"
+                android:text='@{String.valueOf(viewModel.statistics.rank)}'
+                android:textAlignment="center"
+                android:textSize="24sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/number_of_users" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/skills_view_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/layouts_group_overview">
+
+            <TextView
+                android:id="@+id/users_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Seznam hráčů"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <androidx.fragment.app.FragmentContainerView
+                android:id="@+id/users_list"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:paddingBottom="200sp"
+                app:layout_constraintTop_toBottomOf="@id/users_label" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

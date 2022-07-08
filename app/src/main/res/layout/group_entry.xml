@@ -10,44 +10,33 @@
     android:layout_height="wrap_content">
 
     <TextView
-        android:id="@+id/skill_name"
+        android:id="@+id/group_name"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:padding="2dp"
-        android:text="skill-name"
+        android:text="group-name"
         android:textSize="34sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
-
     <TextView
-        android:id="@+id/strength_limit"
+        android:id="@+id/label_total_points"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:text="@string/total_amount_of_points"
         android:layout_marginStart="2dp"
-        android:text="@string/strength_limit"
         android:textSize="12sp"
-        app:layout_constraintStart_toStartOf="@+id/skill_name"
-        app:layout_constraintTop_toBottomOf="@+id/skill_name" />
-
+        app:layout_constraintStart_toStartOf="@id/group_name"
+        app:layout_constraintTop_toBottomOf="@id/group_name" />
     <TextView
-        android:id="@+id/magic_limit"
+        android:id="@+id/total_points"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="5dp"
-        android:text="@string/magic_limit"
+        android:text="total-points"
+        android:layout_marginStart="2dp"
         android:textSize="12sp"
+        android:textStyle="bold"
+        app:layout_constraintStart_toEndOf="@id/label_total_points"
+        app:layout_constraintTop_toBottomOf="@id/group_name" />
 
-        app:layout_constraintStart_toEndOf="@+id/strength_limit"
-        app:layout_constraintTop_toBottomOf="@+id/skill_name" />
-
-    <TextView
-        android:id="@+id/dexterity_limit"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="5dp"
-        android:text="@string/dexterity_limit"
-        android:textSize="12sp"
-        app:layout_constraintStart_toEndOf="@+id/magic_limit"
-        app:layout_constraintTop_toBottomOf="@+id/skill_name" />
 </androidx.constraintlayout.widget.ConstraintLayout>

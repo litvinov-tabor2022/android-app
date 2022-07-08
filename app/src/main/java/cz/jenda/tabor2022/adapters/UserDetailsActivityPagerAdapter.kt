@@ -5,17 +5,17 @@ import androidx.lifecycle.MutableLiveData
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import cz.jenda.tabor2022.R
 import cz.jenda.tabor2022.activities.BasicActivity
-import cz.jenda.tabor2022.data.model.GameTransaction
-import cz.jenda.tabor2022.data.model.UserAndSkills
+import cz.jenda.tabor2022.data.model.Skill
+import cz.jenda.tabor2022.data.model.UserWithGroup
+import cz.jenda.tabor2022.data.proto.Portal
 import cz.jenda.tabor2022.fragments.AddSkillToUserFragment
 import cz.jenda.tabor2022.fragments.UserDetailsOverviewFragment
 
 class UserDetailsActivityPagerAdapter(
-    val activity: BasicActivity, private val userWithSkills: UserAndSkills
+    val activity: BasicActivity,
+    val userWithGroup: UserWithGroup,
+    var data: MutableLiveData<Portal.PlayerData.Builder>
 ) : FragmentStateAdapter(activity) {
-    val transactionsBuffer: MutableLiveData<GameTransaction> by lazy {
-        MutableLiveData<GameTransaction>()
-    }
 
     val headerNames = arrayOf(
         activity.getString(R.string.userdetail_tab_overview),
@@ -24,8 +24,8 @@ class UserDetailsActivityPagerAdapter(
 
     override fun createFragment(position: Int): Fragment {
         return when (position) {
-            0 -> UserDetailsOverviewFragment(userWithSkills, this)
-            1 -> AddSkillToUserFragment(userWithSkills, this)
+            0 -> UserDetailsOverviewFragment(this)
+            1 -> AddSkillToUserFragment(this)
             else -> throw IllegalStateException()
         }
     }
@@ -34,13 +34,18 @@ class UserDetailsActivityPagerAdapter(
         return 2
     }
 
-    fun pushTransaction(transaction: GameTransaction) {
-//        transactionsBuffer = transactionsBuffer + transaction
-//        binding.tab.setSelectedTabIndicatorColor(
-//            if (pagerAdapter.transactionsBuffer.isEmpty()) ContextCompat.getColor(
-//                this,
-//                R.color.design_default_color_secondary
-//            ) else ContextCompat.getColor(this, R.color.design_default_color_error)
-//        )
+    fun addSkill(skill: Skill) {
+        data.postValue(data.value?.addSkills(Portal.Skill.forNumber(skill.id.toInt())))
+    }
+
+    fun removeSkill(skill: Skill) {
+        val updatedPlayerData: () -> Portal.PlayerData.Builder? = {
+            val ds = data.value
+            val skills = ds?.skillsList?.filter { it.number != skill.id.toInt() }
+            ds?.clearSkills()
+            ds?.addAllSkills(skills)
+            ds
+        }
+        data.postValue(updatedPlayerData())
     }
 }

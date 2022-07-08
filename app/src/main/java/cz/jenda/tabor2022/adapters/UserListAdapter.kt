@@ -6,15 +6,16 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import cz.jenda.tabor2022.R
-import cz.jenda.tabor2022.data.model.UserAndSkills
+import cz.jenda.tabor2022.data.model.UserWithGroup
 
 
 class UserListAdapter :
-    ListAdapter<UserAndSkills, UserListAdapter.UserViewHolder>(UserComparator()),
-    WithItemListeners<UserAndSkills> {
+    ListAdapter<UserWithGroup, UserListAdapter.UserViewHolder>(UserComparator()),
+    WithItemListeners<UserWithGroup> {
 
-    var itemShortClick: OnItemShortClickListener<UserAndSkills>? = null
-    var itemLongClick: OnItemLongClickListener<UserAndSkills>? = null
+    var itemShortClick: OnItemShortClickListener<UserWithGroup>? = null
+    var itemLongClick: OnItemLongClickListener<UserWithGroup>? = null
+    var lastClickedItem: UserWithGroup? = null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): UserViewHolder {
         return UserViewHolder.create(this, parent)
@@ -26,12 +27,17 @@ class UserListAdapter :
 
     class UserViewHolder(val adapter: UserListAdapter, itemView: View) :
         RecyclerView.ViewHolder(itemView) {
-        private val userItemView: TextView = itemView.findViewById(R.id.portal_id)
+        private val userItemView: TextView = itemView.findViewById(R.id.user_name)
+        private val totalPointsView: TextView = itemView.findViewById(R.id.total_points)
+        private val groupView: TextView = itemView.findViewById(R.id.group)
 
-        fun bind(user: UserAndSkills) {
-            userItemView.text = user.user.name
+        fun bind(user: UserWithGroup) {
+            userItemView.text = user.userWithSkills.user.name
+            totalPointsView.text = user.userWithSkills.user.totalPoints().toString()
+            groupView.text = user.group?.name ?: "N/A"
             itemView.setOnClickListener {
                 adapter.itemShortClick?.itemShortClicked(user)
+                adapter.lastClickedItem = user
             }
             itemView.setOnLongClickListener {
                 adapter.itemLongClick?.itemLongClicked(user)
@@ -48,21 +54,21 @@ class UserListAdapter :
         }
     }
 
-    class UserComparator : DiffUtil.ItemCallback<UserAndSkills>() {
-        override fun areItemsTheSame(oldItem: UserAndSkills, newItem: UserAndSkills): Boolean {
+    class UserComparator : DiffUtil.ItemCallback<UserWithGroup>() {
+        override fun areItemsTheSame(oldItem: UserWithGroup, newItem: UserWithGroup): Boolean {
             return oldItem === newItem
         }
 
-        override fun areContentsTheSame(oldItem: UserAndSkills, newItem: UserAndSkills): Boolean {
-            return oldItem.user.name == newItem.user.name
+        override fun areContentsTheSame(oldItem: UserWithGroup, newItem: UserWithGroup): Boolean {
+            return oldItem.userWithSkills.user.name == newItem.userWithSkills.user.name
         }
     }
 
-    override fun setOnItemClickListener(listener: OnItemShortClickListener<UserAndSkills>) {
+    override fun setOnItemClickListener(listener: OnItemShortClickListener<UserWithGroup>) {
         itemShortClick = listener
     }
 
-    override fun setOnLongItemClickListener(listener: OnItemLongClickListener<UserAndSkills>) {
+    override fun setOnLongItemClickListener(listener: OnItemLongClickListener<UserWithGroup>) {
         itemLongClick = listener
     }
 }

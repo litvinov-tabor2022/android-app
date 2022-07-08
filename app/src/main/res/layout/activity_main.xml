@@ -42,11 +42,11 @@
             app:layout_constraintTop_toTopOf="parent" />
 
     <Button
-            android:id="@+id/button_tags"
+            android:id="@+id/button_batch"
             android:layout_width="200dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="30dp"
-            android:text="@string/button_tags"
+            android:text="@string/button_batch"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@id/button_sync" />
@@ -56,10 +56,10 @@
             android:layout_width="200dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="30dp"
-            android:text="@string/button_users"
+            android:text="@string/button_users_and_skills"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/button_tags" />
+            app:layout_constraintTop_toBottomOf="@id/button_batch" />
 
     <Button
         android:id="@+id/button_backup"

@@ -19,5 +19,11 @@ data class User(
     @ColumnInfo(name = "magic")
     val magic: Int,
     @ColumnInfo(name = "bonus_points")
-    val bonusPoints: Int
-)
+    val bonusPoints: Int,
+    @ColumnInfo(name = "group_id")
+    val groupId: Long?
+) {
+    fun totalPoints(): Int {
+        return strength + dexterity + magic + bonusPoints
+    }
+}

@@ -1,6 +1,7 @@
 package cz.jenda.tabor2022.activities
 
 import android.Manifest
+import android.app.UiModeManager
 import android.content.Intent
 import android.net.Uri
 import android.nfc.NfcAdapter
@@ -9,18 +10,17 @@ import android.util.Log
 import android.widget.Button
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatDelegate
 import com.tbruyelle.rxpermissions3.RxPermissions
-import cz.jenda.tabor2022.BuildConfig
-import cz.jenda.tabor2022.Constants
-import cz.jenda.tabor2022.R
+import cz.jenda.tabor2022.*
 import cz.jenda.tabor2022.connection.BackupClient
 import kotlinx.coroutines.*
 import kotlin.coroutines.CoroutineContext
 
+
 class MainActivity : AppCompatActivity(), CoroutineScope {
     private val rxPermissions = RxPermissions(this)
     private lateinit var backupClient: BackupClient
-
     private var job: Job = Job()
 
     override val coroutineContext: CoroutineContext
@@ -28,6 +28,18 @@ class MainActivity : AppCompatActivity(), CoroutineScope {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+        if (NfcAdapter.ACTION_TECH_DISCOVERED == intent.action) {
+            val actions = TagActions(this) { _, tagData ->
+                val intent = Intent(applicationContext, UserDetailActivity::class.java)
+                if (tagData != null) {
+                    intent.putExtra(Extras.USER_EXTRA, tagData.userId.toLong())
+                    startActivity(intent)
+                }
+            }
+            launch { actions.handleIntent(intent) }
+        }
+
         setContentView(R.layout.activity_main)
 
         BackupClient.create(
@@ -39,7 +51,7 @@ class MainActivity : AppCompatActivity(), CoroutineScope {
             startActivity(intent)
         }
 
-        findViewById<Button>(R.id.button_tags)?.setOnClickListener {
+        findViewById<Button>(R.id.button_batch)?.setOnClickListener {
             val intent = Intent(this, TagsActivity::class.java)
             startActivity(intent)
         }
@@ -50,14 +62,14 @@ class MainActivity : AppCompatActivity(), CoroutineScope {
         }
 
         findViewById<Button>(R.id.button_backup)?.setOnClickListener {
-            uploadBackup();
+            uploadBackup()
         }
 
         findViewById<Button>(R.id.button_load_from_backup)?.setOnClickListener {
-            downloadBackup();
+            downloadBackup()
         }
 
-        rxPermissions.setLogging(true);
+        rxPermissions.setLogging(true)
 
         rxPermissions
             .request(
@@ -69,7 +81,8 @@ class MainActivity : AppCompatActivity(), CoroutineScope {
             .subscribe { granted: Boolean ->
                 if (!granted) {
                     // At least one permission is denied
-                    Toast.makeText(this, R.string.allow_all_permissions, Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, R.string.allow_all_permissions, Toast.LENGTH_SHORT)
+                        .show()
                 }
             }
     }
@@ -159,12 +172,12 @@ class MainActivity : AppCompatActivity(), CoroutineScope {
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         Log.i(Constants.AppTag, "Data from all portals deleted!")
-        Toast.makeText(applicationContext, intent.action.toString(), Toast.LENGTH_SHORT).show()
+        Toast.makeText(applicationContext, "Opened from intent", Toast.LENGTH_SHORT).show()
 //        if (NfcAdapter.ACTION_TAG_DISCOVERED == intent.action) {
 //            if (tagFromIntent?.techList?.contains(MifareClassic::class.qualifiedName) == true) {
-            Intent(this, UserDetailActivity::class.java).also {
-                startActivity(it)
-            }
+        Intent(this, UserDetailActivity::class.java).also {
+            startActivity(it)
+        }
 //            }
 //        }
     }

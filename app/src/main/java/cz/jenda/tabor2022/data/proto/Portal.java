@@ -121,7 +121,7 @@ public final class Portal {
 
     private final int value;
 
-    private Skill(int value) {
+    Skill(int value) {
       this.value = value;
     }
 
@@ -701,8 +701,7 @@ public final class Portal {
             != other.getBonusPoints()) return false;
       }
       if (!skills_.equals(other.skills_)) return false;
-      if (!unknownFields.equals(other.unknownFields)) return false;
-      return true;
+        return unknownFields.equals(other.unknownFields);
     }
 
     @java.lang.Override
@@ -1045,10 +1044,7 @@ public final class Portal {
         if (!hasDexterity()) {
           return false;
         }
-        if (!hasBonusPoints()) {
-          return false;
-        }
-        return true;
+          return hasBonusPoints();
       }
 
       @java.lang.Override
@@ -1498,7 +1494,7 @@ public final class Portal {
       getDescriptor() {
     return descriptor;
   }
-  private static  com.google.protobuf.Descriptors.FileDescriptor
+  private static final com.google.protobuf.Descriptors.FileDescriptor
       descriptor;
   static {
     java.lang.String[] descriptorData = {

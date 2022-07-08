@@ -7,6 +7,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
+import android.widget.FrameLayout
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.lifecycle.MutableLiveData
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
@@ -36,14 +38,9 @@ abstract class SearchableListFragment<T>(private val search_bar: Int) : BasicFra
         listView = view.findViewById(R.id.list)
         searchBar.addTextChangedListener(textWatcher)
 
-        val refreshLayout = view.findViewById(R.id.refresh_layout) as SwipeRefreshLayout
-        refreshLayout.setOnRefreshListener {
-            launch {
-                refreshLayout.isRefreshing = false
-            }
-        }
+        val refreshLayout = view.findViewById(R.id.refresh_layout) as ConstraintLayout
 
-        registerForContextMenu(listView);
+        registerForContextMenu(listView)
     }
 
     override fun onResume() {

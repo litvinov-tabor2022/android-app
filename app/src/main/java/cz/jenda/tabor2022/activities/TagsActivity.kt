@@ -6,7 +6,7 @@ import android.util.Log
 import com.google.android.material.tabs.TabLayoutMediator
 import cz.jenda.tabor2022.Constants
 import cz.jenda.tabor2022.R
-import cz.jenda.tabor2022.adapters.TagsActivityPagerAdapter
+import cz.jenda.tabor2022.adapters.BatchModeActivityPagerAdapter
 import cz.jenda.tabor2022.data.proto.Portal
 import cz.jenda.tabor2022.databinding.ActivityTagsBinding
 import cz.jenda.tabor2022.fragments.abstractions.TagAwareFragmentBase
@@ -31,7 +31,7 @@ class TagsActivity : NfcActivityBase() {
         setContentView(binding.root)
 
         val viewPager = binding.viewPager
-        val pagerAdapter = TagsActivityPagerAdapter(this, actions)
+        val pagerAdapter = BatchModeActivityPagerAdapter(this, actions)
 
         viewPager.adapter = pagerAdapter
 

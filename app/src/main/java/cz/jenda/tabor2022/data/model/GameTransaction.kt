@@ -1,9 +1,10 @@
 package cz.jenda.tabor2022.data.model
 
 import androidx.room.*
-import cz.jenda.tabor2022.data.model.User
-import java.time.Instant
+import kotlinx.datetime.Instant
+import kotlinx.serialization.Serializable
 
+@Serializable
 @Entity(
     tableName = "transactions",
     indices = [Index(value = ["user_id"]), Index(value = ["time", "device_id"], unique = true)],

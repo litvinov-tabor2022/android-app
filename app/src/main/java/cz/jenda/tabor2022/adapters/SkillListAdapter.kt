@@ -10,13 +10,13 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import cz.jenda.tabor2022.R
 import cz.jenda.tabor2022.data.model.Skill
-import cz.jenda.tabor2022.data.model.UserAndSkills
+import cz.jenda.tabor2022.data.model.UserWithGroup
 
 /**
  * @param user - if not null, skills limitations are color based on the user's stats
  */
 class SkillListAdapter(
-    private val user: UserAndSkills?
+    private val user: UserWithGroup?
 ) :
     ListAdapter<Skill, SkillListAdapter.SkillViewHolder>(SkillComparator()),
     WithItemListeners<Skill> {
@@ -36,7 +36,7 @@ class SkillListAdapter(
     class SkillViewHolder(
         val adapter: SkillListAdapter,
         itemView: View,
-        val userWithSkills: UserAndSkills?
+        val userWithSkills: UserWithGroup?
     ) : RecyclerView.ViewHolder(itemView) {
         private val userItemView: TextView = itemView.findViewById(R.id.skill_name)
         private val strengthLimit = itemView.findViewById(R.id.strength_limit) as TextView
@@ -44,7 +44,7 @@ class SkillListAdapter(
         private val magicLimit = itemView.findViewById(R.id.magic_limit) as TextView
 
         fun bind(skill: Skill) {
-            val user = userWithSkills?.user
+            val user = userWithSkills?.userWithSkills?.user
             userItemView.text = skill.name
             strengthLimit.text =
                 strengthLimit.context.getString(R.string.strength_limit, skill.strength)
@@ -59,13 +59,13 @@ class SkillListAdapter(
                     R.color.design_default_color_error
                 )
                 strengthLimit.setTextColor(
-                    if (user.strength > skill.strength) green else red
+                    if (user.strength >= skill.strength) green else red
                 )
                 dexterityLimit.setTextColor(
-                    if (user.dexterity > skill.dexterity) green else red
+                    if (user.dexterity >= skill.dexterity) green else red
                 )
                 magicLimit.setTextColor(
-                    if (user.magic > skill.magic) green else red
+                    if (user.magic >= skill.magic) green else red
                 )
             }
             itemView.setOnClickListener {
@@ -75,7 +75,7 @@ class SkillListAdapter(
             itemView.setOnLongClickListener {
                 adapter.itemLongClick?.let {
                     it.itemLongClicked(skill)
-                    itemView.showContextMenu();
+                    itemView.showContextMenu()
                 }
                 true
             }
@@ -85,7 +85,7 @@ class SkillListAdapter(
             fun create(
                 adapter: SkillListAdapter,
                 parent: ViewGroup,
-                user: UserAndSkills?
+                user: UserWithGroup?
             ): SkillViewHolder {
                 val view: View = LayoutInflater.from(parent.context)
                     .inflate(R.layout.skill_entry, parent, false)

@@ -2,7 +2,6 @@ package cz.jenda.tabor2022.data.dao
 
 import androidx.room.*
 import cz.jenda.tabor2022.data.model.Skill
-import cz.jenda.tabor2022.data.model.UserAndSkills
 import kotlinx.coroutines.flow.Flow
 
 @Dao
