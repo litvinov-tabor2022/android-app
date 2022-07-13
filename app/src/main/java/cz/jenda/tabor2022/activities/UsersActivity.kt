@@ -69,6 +69,7 @@ class UsersActivity : NfcActivityBase(), InconsistentDataDialog.InconsistentData
         val intent = Intent(applicationContext, UserDetailActivity::class.java)
         if (tagData != null) {
             intent.putExtra(Extras.USER_EXTRA, tagData?.userId?.toLong())
+            intent.putExtra(Extras.PLAYERS_DATA_EXTRA, tagData)
             startActivity(intent)
         }
     }

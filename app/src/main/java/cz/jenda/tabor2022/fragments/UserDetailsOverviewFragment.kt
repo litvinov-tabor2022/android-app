@@ -26,7 +26,6 @@ class UserDetailsOverviewFragment(
         val binding = FragmentUserDetailsBinding.inflate(layoutInflater)
         binding.lifecycleOwner = this
         adapter.data.observe(viewLifecycleOwner) { pd -> binding.builder = pd }
-        adapter.data.value = adapter.userWithGroup.toPlayerData().toBuilder()
         binding.userWithSkills = adapter.userWithGroup
         return binding.root
     }
@@ -98,11 +97,15 @@ class UserDetailsOverviewFragment(
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         launch {
-            val skillsFragment = UserSkillsFragment(adapter.userWithGroup)
-            childFragmentManager
-                .beginTransaction()
-                .add(R.id.skills_view, skillsFragment)
-                .commit()
+            val skillsFragment =
+                adapter.data.value?.build()
+                    ?.let { UserTagSkillsFragment(adapter.userWithGroup, it) }
+            skillsFragment?.let {
+                childFragmentManager
+                    .beginTransaction()
+                    .add(R.id.skills_view, it)
+                    .commit()
+            }
         }
     }
 

@@ -47,7 +47,8 @@
     <string name="write_to_tag">Přilož tag hráče %1$s.</string>
     <string name="data_written">Data hráče úspěšně uložena</string>
     <string name="writing_data_failed">Zápis dat na tag selhal. Opakujte pokus.</string>
-    <string name="inconsistend_data">Data na tagu a v zařízení nejsou konzistentní. Inicializujte tag znovu.</string>
+    <string name="inconsistent_data">Data na tagu a v zařízení nejsou konzistentní.</string>
+    <string name="ok">OK</string>
     <string name="remove">Smazat</string>
     <string name="userstab_header_list">Hráči</string>
     <string name="search_hint">vyhledávání</string>

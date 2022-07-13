@@ -34,6 +34,7 @@ class UserDetailActivity : NfcActivityBase(), WriteToTagDialog.WriteToTagDialogL
     private lateinit var referencePlayerData: Portal.PlayerData
     private val playerData: MutableLiveData<Portal.PlayerData.Builder> = MutableLiveData()
     private lateinit var fabSave: FloatingActionButton
+    private var readOnly: Boolean = false
 
     private val startForResult =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult())
@@ -52,12 +53,6 @@ class UserDetailActivity : NfcActivityBase(), WriteToTagDialog.WriteToTagDialogL
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         userId = intent.getSerializableExtra(Extras.USER_EXTRA) as Long
-        setContentView(R.layout.fragment_user_details)
-
-        val binding = ActivityUserDetailsBinding.inflate(layoutInflater)
-        fabSave = binding.fab
-        setContentView(binding.root)
-        val viewPager = binding.viewPager
 
         runBlocking {
             launch(Dispatchers.IO) {
@@ -65,8 +60,24 @@ class UserDetailActivity : NfcActivityBase(), WriteToTagDialog.WriteToTagDialogL
             }.join()
         }
 
+        kotlin.runCatching { intent.getSerializableExtra(Extras.PLAYERS_DATA_EXTRA) as Portal.PlayerData }
+            .onSuccess {
+                playerData.value =
+                    (intent.getSerializableExtra(Extras.PLAYERS_DATA_EXTRA) as Portal.PlayerData).toBuilder()
+                readOnly = true
+            }.onFailure {
+                playerData.value = userWithGroup.userWithSkills.toPlayerData()
+                    .toBuilder()
+            }
+
+        setContentView(R.layout.fragment_user_details)
+
+        val binding = ActivityUserDetailsBinding.inflate(layoutInflater)
+        fabSave = binding.fab
+        setContentView(binding.root)
+        val viewPager = binding.viewPager
+
         referencePlayerData = userWithGroup.userWithSkills.toPlayerData()
-        playerData.value = userWithGroup.userWithSkills.toPlayerData().toBuilder()
 
         val pagerAdapter =
             UserDetailsActivityPagerAdapter(
@@ -79,7 +90,7 @@ class UserDetailActivity : NfcActivityBase(), WriteToTagDialog.WriteToTagDialogL
         playerData.observe(this) {
             Log.i(Constants.AppTag, "Transaction buffer changed: $it")
 
-            if (it.build() != referencePlayerData) {
+            if (it.build() != referencePlayerData && !readOnly) {
                 fabSave.visibility = FloatingActionButton.VISIBLE
             } else {
                 fabSave.visibility = FloatingActionButton.INVISIBLE
@@ -87,8 +98,8 @@ class UserDetailActivity : NfcActivityBase(), WriteToTagDialog.WriteToTagDialogL
             binding.tabs.setSelectedTabIndicatorColor(
                 if (it.build() != referencePlayerData) ContextCompat.getColor(
                     this,
-                    R.color.green
-                ) else ContextCompat.getColor(this, R.color.design_default_color_error)
+                    R.color.design_default_color_error
+                ) else ContextCompat.getColor(this, R.color.green)
             )
         }
 

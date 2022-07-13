@@ -11,6 +11,7 @@ object Extras {
     const val TRANSACTIONS = "cz.jenda.tabor2022.extra.TRANSACTIONS"
     const val TAG_EXTRA = "cz.jenda.tabor2022.extra.TAG"
     const val USER_EXTRA = "cz.jenda.tabor2022.extra.USER"
+    const val PLAYERS_DATA_EXTRA = "cz.jenda.tabor2022.extra.PLAYERS_DATA_EXTRA"
     const val GROUP_EXTRA = "cz.jenda.tabor2022.extra.GROUP"
     const val TAG_READ_DATA = "cz.jenda.tabor2022.extra.TAG_READ_DATA"
     const val TAG_READ_ERROR = "cz.jenda.tabor2022.extra.TAG_READ_ERROR"
