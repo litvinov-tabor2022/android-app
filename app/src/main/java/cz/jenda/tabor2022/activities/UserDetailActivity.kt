@@ -88,7 +88,7 @@ class UserDetailActivity : NfcActivityBase(), WriteToTagDialog.WriteToTagDialogL
         viewPager.adapter = pagerAdapter
 
         playerData.observe(this) {
-            Log.i(Constants.AppTag, "Transaction buffer changed: $it")
+            Log.d(Constants.AppTag, "Transaction buffer changed: $it")
 
             if (it.build() != referencePlayerData && !readOnly) {
                 fabSave.visibility = FloatingActionButton.VISIBLE

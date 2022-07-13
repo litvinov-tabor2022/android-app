@@ -56,7 +56,7 @@
     <string name="backup_done">Záloha dokončena</string>
     <string name="backup_started">Zálohuji…</string>
     <string name="cancel">Zrušit</string>
-    <string name="backup_loaded">Data aktulizována ze zálohy</string>
+    <string name="backup_loaded">Data aktualizována ze zálohy</string>
     <string name="backup_load_failed">Načítání zálohy selhalo</string>
     <string name="backup_failed">Nahrávání zálohy selhalo</string>
     <string name="button_backup_load">Načtení dat ze zálohy</string>
