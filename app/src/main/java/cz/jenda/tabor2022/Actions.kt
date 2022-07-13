@@ -8,6 +8,7 @@ object Actions {
 
 object Extras {
     const val DATA_TO_WRITE_ON_TAG = "cz.jenda.tabor2022.extra.DATA_TO_WRITE_ON_TAG"
+    const val REFERENCE_DATA = "cz.jenda.tabor2022.extra.REFERENCE_DATA"
     const val TRANSACTIONS = "cz.jenda.tabor2022.extra.TRANSACTIONS"
     const val TAG_EXTRA = "cz.jenda.tabor2022.extra.TAG"
     const val USER_EXTRA = "cz.jenda.tabor2022.extra.USER"

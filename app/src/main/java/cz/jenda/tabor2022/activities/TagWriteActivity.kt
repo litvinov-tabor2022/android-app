@@ -27,6 +27,7 @@ import java.time.Instant
 
 class TagWriteActivity : NfcActivityBase(), WriteToTagDialog.WriteToTagDialogListener {
     lateinit var playerData: Portal.PlayerData
+    lateinit var referenceData: Portal.PlayerData
     lateinit var userWithGroup: UserWithGroup
     private var waitingInit: WaitingResponse? = null
 
@@ -34,6 +35,7 @@ class TagWriteActivity : NfcActivityBase(), WriteToTagDialog.WriteToTagDialogLis
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_write_tag)
         playerData = intent.getSerializableExtra(Extras.DATA_TO_WRITE_ON_TAG) as Portal.PlayerData
+        referenceData = intent.getSerializableExtra(Extras.REFERENCE_DATA) as Portal.PlayerData
         launch(Dispatchers.IO) {
             userWithGroup = PortalApp.instance.db.usersDao().getById(
                 playerData.userId.toLong()
@@ -93,18 +95,17 @@ class TagWriteActivity : NfcActivityBase(), WriteToTagDialog.WriteToTagDialogLis
 
     private fun buildTransaction(): List<GameTransaction> {
         var iterationCounter = 0
-        val transactions = userWithGroup.let {
-            val user = it.userWithSkills.user
-            val deltaStrength = playerData.strength - user.strength
-            val deltaDexterity = playerData.dexterity - user.dexterity
-            val deltaMagic = playerData.magic - user.magic
-            val deltaBonusPoints = playerData.bonusPoints - user.bonusPoints
+        val transactions = referenceData.let {
+            val deltaStrength = playerData.strength - it.strength
+            val deltaDexterity = playerData.dexterity - it.dexterity
+            val deltaMagic = playerData.magic - it.magic
+            val deltaBonusPoints = playerData.bonusPoints - it.bonusPoints
             if (deltaStrength != 0 || deltaDexterity != 0 || deltaMagic != 0 || deltaBonusPoints != 0) {
                 mutableListOf(
                     GameTransaction(
                         time = Instant.now().toKotlinInstant()
                             .plus(iterationCounter++, DateTimeUnit.MILLISECOND),
-                        userId = user.id,
+                        userId = it.userId.toLong(),
                         deviceId = Constants.AppDeviceId,
                         strength = deltaStrength,
                         dexterity = deltaDexterity,
@@ -118,7 +119,7 @@ class TagWriteActivity : NfcActivityBase(), WriteToTagDialog.WriteToTagDialogLis
             }
         }
 
-        val alreadyOwnedSkills = userWithGroup.userWithSkills.skills.map { it.id.toInt() }
+        val alreadyOwnedSkills = referenceData.skillsList.map { it.number }
         val playerDataSkillsId = playerData.skillsList.map { it.number }
 
         playerDataSkillsId.forEach {
@@ -127,7 +128,7 @@ class TagWriteActivity : NfcActivityBase(), WriteToTagDialog.WriteToTagDialogLis
                     GameTransaction(
                         time = Instant.now().toKotlinInstant()
                             .plus(iterationCounter++, DateTimeUnit.MILLISECOND),
-                        userId = userWithGroup.userWithSkills.user.id,
+                        userId = referenceData.userId.toLong(),
                         deviceId = Constants.AppDeviceId,
                         strength = 0,
                         dexterity = 0,
@@ -145,7 +146,7 @@ class TagWriteActivity : NfcActivityBase(), WriteToTagDialog.WriteToTagDialogLis
                     GameTransaction(
                         time = Instant.now().toKotlinInstant()
                             .plus(iterationCounter++, DateTimeUnit.MILLISECOND),
-                        userId = userWithGroup.userWithSkills.user.id,
+                        userId = referenceData.userId.toLong(),
                         deviceId = Constants.AppDeviceId,
                         strength = 0,
                         dexterity = 0,

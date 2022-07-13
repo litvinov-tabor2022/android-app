@@ -2,6 +2,8 @@ package cz.jenda.tabor2022.activities
 
 import android.app.Activity
 import android.content.Intent
+import android.content.res.ColorStateList
+import android.graphics.Color
 import android.nfc.tech.MifareClassic
 import android.os.Bundle
 import android.util.Log
@@ -74,10 +76,13 @@ class UserDetailActivity : NfcActivityBase(), WriteToTagDialog.WriteToTagDialogL
 
         val binding = ActivityUserDetailsBinding.inflate(layoutInflater)
         fabSave = binding.fab
+        if (readOnly)
+            fabSave.backgroundTintList = ColorStateList.valueOf(Color.rgb(255, 50, 50))
         setContentView(binding.root)
         val viewPager = binding.viewPager
 
-        referencePlayerData = userWithGroup.userWithSkills.toPlayerData()
+        referencePlayerData =
+            playerData.value?.build() ?: userWithGroup.userWithSkills.toPlayerData()
 
         val pagerAdapter =
             UserDetailsActivityPagerAdapter(
@@ -90,7 +95,7 @@ class UserDetailActivity : NfcActivityBase(), WriteToTagDialog.WriteToTagDialogL
         playerData.observe(this) {
             Log.d(Constants.AppTag, "Transaction buffer changed: $it")
 
-            if (it.build() != referencePlayerData && !readOnly) {
+            if (it.build() != referencePlayerData) {
                 fabSave.visibility = FloatingActionButton.VISIBLE
             } else {
                 fabSave.visibility = FloatingActionButton.INVISIBLE
@@ -108,6 +113,10 @@ class UserDetailActivity : NfcActivityBase(), WriteToTagDialog.WriteToTagDialogL
             intent.putExtra(
                 Extras.DATA_TO_WRITE_ON_TAG,
                 playerData.value?.build()
+            )
+            intent.putExtra(
+                Extras.REFERENCE_DATA,
+                referencePlayerData
             )
             startForResult.launch(intent)
         }

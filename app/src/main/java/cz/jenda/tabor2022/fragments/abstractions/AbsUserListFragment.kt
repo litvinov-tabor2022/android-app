@@ -13,6 +13,7 @@ import android.widget.ListView
 import androidx.recyclerview.widget.LinearLayoutManager
 import cz.jenda.tabor2022.Constants
 import cz.jenda.tabor2022.Extras.DATA_TO_WRITE_ON_TAG
+import cz.jenda.tabor2022.Extras.REFERENCE_DATA
 import cz.jenda.tabor2022.R
 import cz.jenda.tabor2022.activities.TagWriteActivity
 import cz.jenda.tabor2022.adapters.UserListAdapter
@@ -85,18 +86,7 @@ abstract class AbsUserListFragment :
     }
 
     private fun initTag(user: User) {
-        val player = playerData {
-            userId = user.id.toInt()
-            strength = user.strength
-            dexterity = user.dexterity
-            magic = user.magic
-            bonusPoints = user.bonusPoints
-            secret = Constants.TagSecret
-        }
 
-        val intent = Intent(view?.context, TagWriteActivity::class.java)
-        intent.putExtra(DATA_TO_WRITE_ON_TAG, player)
-        startActivity(intent)
     }
 
     override fun filter(text: CharSequence, data: List<UserWithGroup>): List<UserWithGroup> {

@@ -140,6 +140,7 @@ class UserNewFragment : BasicFragment() {
     private fun writeNewUserToTag() {
         val intent = Intent(view?.context, TagWriteActivity::class.java)
         intent.putExtra(Extras.DATA_TO_WRITE_ON_TAG, builder.build())
+        intent.putExtra(Extras.REFERENCE_DATA, builder.build())
         startActivity(intent)
     }
 
