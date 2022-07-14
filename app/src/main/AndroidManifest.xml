@@ -76,7 +76,7 @@
             android:windowSoftInputMode="adjustPan" />
 
         <activity
-            android:name=".activities.TagsActivity"
+            android:name=".activities.BatchModeActivity"
             android:exported="true"
             android:windowSoftInputMode="adjustPan">
             <intent-filter>

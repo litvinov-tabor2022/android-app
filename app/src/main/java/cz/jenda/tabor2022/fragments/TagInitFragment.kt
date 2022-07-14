@@ -10,7 +10,7 @@ import androidx.fragment.app.viewModels
 import cz.jenda.tabor2022.Constants
 import cz.jenda.tabor2022.R
 import cz.jenda.tabor2022.TagActions
-import cz.jenda.tabor2022.activities.TagsActivity
+import cz.jenda.tabor2022.activities.BatchModeActivity
 import cz.jenda.tabor2022.adapters.OnItemShortClickListener
 import cz.jenda.tabor2022.data.model.UserWithSkills
 import cz.jenda.tabor2022.data.model.UserWithGroup
@@ -24,7 +24,7 @@ import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.launch
 
 class TagInitFragment(
-    activity: TagsActivity,
+    activity: BatchModeActivity,
     private val actions: TagActions
 ) :
     TagAwareFragmentBase(activity) {

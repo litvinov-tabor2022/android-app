@@ -79,4 +79,6 @@
     <string name="group_header">Skupina</string>
     <string name="groups_header">Skupiny</string>
     <string name="rank_header">Umístění</string>
+    <string name="batch_mode">Dávkový režim</string>
+    <string name="writing_data_ok">Data zapsána na tag</string>
 </resources>

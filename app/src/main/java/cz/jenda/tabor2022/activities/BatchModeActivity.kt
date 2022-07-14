@@ -11,12 +11,18 @@ import cz.jenda.tabor2022.data.proto.Portal
 import cz.jenda.tabor2022.databinding.ActivityTagsBinding
 import cz.jenda.tabor2022.fragments.abstractions.TagAwareFragmentBase
 
-class TagsActivity : NfcActivityBase() {
+class BatchModeActivity : NfcActivityBase() {
     private var currentFragment: TagAwareFragmentBase? = null
 
     override suspend fun onTagRead(tag: MifareClassic, tagData: Portal.PlayerData?) {
         kotlin.runCatching { currentFragment?.onTagRead(tag, tagData) }
-            .onFailure { e -> Log.e(Constants.AppTag, "Tag handling by $currentFragment failed!", e) }
+            .onFailure { e ->
+                Log.e(
+                    Constants.AppTag,
+                    "Tag handling by $currentFragment failed!",
+                    e
+                )
+            }
     }
 
     fun setCurrentFragment(fr: TagAwareFragmentBase?) {
@@ -39,4 +45,7 @@ class TagsActivity : NfcActivityBase() {
             tab.text = pagerAdapter.headerNames[position]
         }.attach()
     }
+
+    suspend fun writeToTag(tag: MifareClassic, data: Portal.PlayerData) =
+        actions.writeToTag(tag, data)
 }

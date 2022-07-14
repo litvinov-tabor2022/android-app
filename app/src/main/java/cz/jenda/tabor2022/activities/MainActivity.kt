@@ -1,7 +1,6 @@
 package cz.jenda.tabor2022.activities
 
 import android.Manifest
-import android.app.UiModeManager
 import android.content.Intent
 import android.net.Uri
 import android.nfc.NfcAdapter
@@ -52,7 +51,7 @@ class MainActivity : AppCompatActivity(), CoroutineScope {
         }
 
         findViewById<Button>(R.id.button_batch)?.setOnClickListener {
-            val intent = Intent(this, TagsActivity::class.java)
+            val intent = Intent(this, BatchModeActivity::class.java)
             startActivity(intent)
         }
 
