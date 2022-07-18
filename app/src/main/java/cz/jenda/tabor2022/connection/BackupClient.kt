@@ -1,15 +1,18 @@
 package cz.jenda.tabor2022.connection
 
 import android.net.Uri
+import android.util.Log
 import com.thegrizzlylabs.sardineandroid.impl.OkHttpSardine
 import cz.jenda.tabor2022.BuildConfig
+import cz.jenda.tabor2022.Constants
 import cz.jenda.tabor2022.PortalApp
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import java.io.File
 import java.io.InputStream
 import java.nio.file.Files
 import java.nio.file.Paths
-import java.nio.file.StandardCopyOption
 import java.time.Instant
 import kotlin.coroutines.CoroutineContext
 
@@ -63,6 +66,7 @@ interface BackupClient : CoroutineScope {
                             PortalApp.instance.populateDb(sourceFile)
                         }
                     }.onFailure {
+                        Log.d(Constants.AppTag, "Backup download has failed", it)
                         throw it
                     }
                 }

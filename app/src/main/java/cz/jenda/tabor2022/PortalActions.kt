@@ -104,7 +104,7 @@ object PortalActions : CoroutineScope {
             launch(Dispatchers.Main) {
                 if (failures.size == 0) {
                     Log.i(Constants.AppTag, "Data from all portals synchronized!")
-                    Toast.makeText(ctx, R.string.data_imported, Toast.LENGTH_SHORT).show()
+                    Toast.makeText(ctx, R.string.data_synchronized, Toast.LENGTH_SHORT).show()
                 } else {
                     Toast.makeText(
                         ctx,

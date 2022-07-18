@@ -88,7 +88,7 @@ object Helpers {
             }
         }.onFailure { e ->
             if (e is SQLiteConstraintException) {
-                Log.w(Constants.AppTag, "Trying to add skill that user already has!")
+                Log.d(Constants.AppTag, "Importing already imported transaction", e)
             } else {
                 throw e
             }
