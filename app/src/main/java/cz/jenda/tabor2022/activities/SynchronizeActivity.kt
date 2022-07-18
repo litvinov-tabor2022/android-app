@@ -4,19 +4,21 @@ import android.os.Bundle
 import android.widget.Button
 import android.widget.ListView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.DialogFragment
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import cz.jenda.tabor2022.PortalActions
 import cz.jenda.tabor2022.R
 import cz.jenda.tabor2022.adapters.PortalAdapter
 import cz.jenda.tabor2022.connection.PortalConnection
 import cz.jenda.tabor2022.connection.PortalsConnector
+import cz.jenda.tabor2022.fragments.dialogs.DeleteDataConfirmationDialog
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlin.coroutines.CoroutineContext
 
-class SynchronizeActivity : AppCompatActivity(), CoroutineScope {
+class SynchronizeActivity : AppCompatActivity(), DeleteDataConfirmationDialog.DeleteDataConfirmationDialogListener, CoroutineScope {
 
     private lateinit var portalsConnector: PortalsConnector
     private lateinit var list: ListView
@@ -48,7 +50,8 @@ class SynchronizeActivity : AppCompatActivity(), CoroutineScope {
         }
 
         findViewById<Button>(R.id.buttonDeleteData).setOnClickListener {
-            launch { PortalActions.deleteData(this@SynchronizeActivity, portals) }
+            val dialog = DeleteDataConfirmationDialog()
+            dialog.show(supportFragmentManager, "")
         }
     }
 
@@ -58,6 +61,14 @@ class SynchronizeActivity : AppCompatActivity(), CoroutineScope {
         launch(Dispatchers.Main) {
             list.adapter = PortalAdapter(this@SynchronizeActivity, portals.toList())
         }
+    }
+
+    override fun onDialogPositiveClick(dialog: DialogFragment) {
+        launch { PortalActions.deleteData(this@SynchronizeActivity, portals) }
+    }
+
+    override fun onDialogNegativeClick(dialog: DialogFragment) {
+        // do nothing
     }
 
     override fun onStart() {
