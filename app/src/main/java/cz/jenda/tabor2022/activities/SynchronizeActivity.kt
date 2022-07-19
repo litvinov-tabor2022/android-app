@@ -41,9 +41,9 @@ class SynchronizeActivity : AppCompatActivity(), DeleteDataConfirmationDialog.De
             rescan()
         }
 
-        findViewById<Button>(R.id.buttonSyncTime).setOnClickListener {
-            launch { PortalActions.synchronizeTime(this@SynchronizeActivity, portals) }
-        }
+//        findViewById<Button>(R.id.buttonSyncTime).setOnClickListener {
+//            launch { PortalActions.synchronizeTime(this@SynchronizeActivity, portals) }
+//        }
 
         findViewById<Button>(R.id.buttonSynchronizeData).setOnClickListener {
             launch { PortalActions.synchronizeData(this@SynchronizeActivity, portals) }

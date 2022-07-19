@@ -66,7 +66,7 @@ object PortalActions : CoroutineScope {
                 } else {
                     Toast.makeText(
                         ctx,
-                        "Failures: ${failures.joinToString()}",
+                        "Set time failures: ${failures.joinToString()}",
                         Toast.LENGTH_LONG
                     ).show()
                 }
@@ -78,9 +78,6 @@ object PortalActions : CoroutineScope {
         Log.i(Constants.AppTag, "Synchronizing data from all connected portals")
 
         val failures = mutableListOf<String>()
-
-        // TODO delete
-        PortalApp.instance.db.usersDao().save(User(137, "Jenda", 10, 10, 10, 0, null))
 
         val namesMapping = jsonMapper.writeValueAsBytes(
             PortalApp.instance.db.usersDao().getAll().first().map { u ->
@@ -96,7 +93,7 @@ object PortalActions : CoroutineScope {
                     .runCatching { updateNamesMapping(conn, namesMapping) }.onFailure { e ->
                         failures += conn.deviceId
                         Log.w(Constants.AppTag, "Could not synchronize names mapping to $conn", e)
-                    }
+                    }.onSuccess { synchronizeTime(ctx, portals) }
             }
         }
 
@@ -108,7 +105,7 @@ object PortalActions : CoroutineScope {
                 } else {
                     Toast.makeText(
                         ctx,
-                        "Failures: ${failures.joinToString()}",
+                        "Sync failures: ${failures.joinToString()}",
                         Toast.LENGTH_LONG
                     ).show()
                 }
@@ -153,11 +150,13 @@ object PortalActions : CoroutineScope {
     private suspend fun synchronizeTransactions(portal: PortalConnection) {
         Log.d(Constants.AppTag, "Synchronizing data from $portal")
 
+        var i: Int = 0
+
         portal.client.fetchData().collect { transaction ->
             runCatching {
                 Log.v(Constants.AppTag, "Transaction from $portal: $transaction")
                 GameTransaction(
-                    time = transaction.time.toKotlinInstant(),
+                    time = transaction.time.toKotlinInstant(),//.plus(i++, DateTimeUnit.MILLISECOND),
                     userId = transaction.userId,
                     deviceId = transaction.deviceId,
                     strength = transaction.strength,

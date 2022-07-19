@@ -61,7 +61,7 @@ class PortalsConnector : CoroutineScope {
                 async {
                     // TODO: make range of IPs auto-discoverable
                     val ip = Inet4Address.getByAddress(
-                        byteArrayOf(192.toByte(), 168.toByte(), 112.toByte(), i.toByte())
+                        byteArrayOf(192.toByte(), 168.toByte(), 34.toByte(), i.toByte())
                     )
 
                     val existing = portals.find { it.ip == ip }
