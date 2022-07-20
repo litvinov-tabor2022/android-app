@@ -31,7 +31,7 @@ class UsersActivity : NfcActivityBase(), InconsistentDataDialog.InconsistentData
 
             tagData?.let {
                 userWithGroup?.let { user ->
-                    if (Helpers.compare(user.userWithSkills, tagData)) {
+                    if (!Helpers.isEqual(user.userWithSkills, tagData)) {
                         val dialog = InconsistentDataDialog()
                         dialog.show(supportFragmentManager, "")
                     } else {

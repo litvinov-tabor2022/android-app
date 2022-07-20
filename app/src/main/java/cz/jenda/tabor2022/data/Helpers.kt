@@ -11,14 +11,18 @@ import cz.jenda.tabor2022.data.model.UserWithSkills
 import cz.jenda.tabor2022.data.proto.Portal
 
 object Helpers {
-    fun compare(user: UserWithSkills, playerData: Portal.PlayerData): Boolean {
+    fun isEqual(user: UserWithSkills, playerData: Portal.PlayerData): Boolean {
         if (user.user.id != playerData.userId.toLong()) return false
         if (user.user.strength != playerData.strength) return false
         if (user.user.magic != playerData.magic) return false
         if (user.user.dexterity != playerData.dexterity) return false
         if (user.user.bonusPoints != playerData.bonusPoints) return false
 
-        if (user.skills.map { it.id }.toSet() != playerData.skillsList.toSet()) return false;
+        val skillsFromDB = user.skills.map { it.id.toInt() }.toSet()
+        val skillsFromTag = playerData.skillsList.map { it.number }.toSet()
+        Log.v(Constants.AppTag, "Comparing skills: $skillsFromDB vs $skillsFromTag")
+
+        if (skillsFromDB != skillsFromTag) return false;
 
         return true
     }
