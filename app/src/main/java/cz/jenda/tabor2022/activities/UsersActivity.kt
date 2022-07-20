@@ -3,26 +3,20 @@ package cz.jenda.tabor2022.activities
 import android.content.Intent
 import android.nfc.tech.MifareClassic
 import android.os.Bundle
-import android.util.Log
-import android.widget.Toast
 import androidx.fragment.app.DialogFragment
 import com.google.android.material.tabs.TabLayoutMediator
-import cz.jenda.tabor2022.Constants
 import cz.jenda.tabor2022.Extras
 import cz.jenda.tabor2022.PortalApp
 import cz.jenda.tabor2022.R
 import cz.jenda.tabor2022.adapters.UsersActivityPagerAdapter
-import cz.jenda.tabor2022.data.Helpers.toPlayerData
+import cz.jenda.tabor2022.data.Helpers
 import cz.jenda.tabor2022.data.model.UserWithGroup
 import cz.jenda.tabor2022.data.proto.Portal
 import cz.jenda.tabor2022.databinding.ActivityUsersBinding
-import cz.jenda.tabor2022.fragments.abstractions.TagAwareFragmentBase
-import cz.jenda.tabor2022.fragments.dialogs.AddSkillDialog
 import cz.jenda.tabor2022.fragments.dialogs.InconsistentDataDialog
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 
 class UsersActivity : NfcActivityBase(), InconsistentDataDialog.InconsistentDataDialogListener {
     private var tagData: Portal.PlayerData? = null
@@ -31,18 +25,20 @@ class UsersActivity : NfcActivityBase(), InconsistentDataDialog.InconsistentData
         var userWithGroup: UserWithGroup?
         this.tagData = tagData
         launch(Dispatchers.IO) {
-            userWithGroup =
-                tagData?.userId?.let {
-                    PortalApp.instance.db.usersDao().getById(it.toLong()).first()
-                }
-            if (userWithGroup?.toPlayerData() != tagData) {
-                val dialog = InconsistentDataDialog()
-                dialog.show(supportFragmentManager, "")
-            } else {
-                val intent = Intent(applicationContext, UserDetailActivity::class.java)
-                if (tagData != null) {
-                    intent.putExtra(Extras.USER_EXTRA, tagData.userId.toLong())
-                    startActivity(intent)
+            userWithGroup = tagData?.userId?.let {
+                PortalApp.instance.db.usersDao().getById(it.toLong()).first()
+            }
+
+            tagData?.let {
+                userWithGroup?.let { user ->
+                    if (Helpers.compare(user.userWithSkills, tagData)) {
+                        val dialog = InconsistentDataDialog()
+                        dialog.show(supportFragmentManager, "")
+                    } else {
+                        val intent = Intent(applicationContext, UserDetailActivity::class.java)
+                        intent.putExtra(Extras.USER_EXTRA, tagData.userId.toLong())
+                        startActivity(intent)
+                    }
                 }
             }
         }.join()

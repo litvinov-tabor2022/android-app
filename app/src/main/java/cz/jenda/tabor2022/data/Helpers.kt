@@ -6,31 +6,21 @@ import androidx.room.withTransaction
 import cz.jenda.tabor2022.Constants
 import cz.jenda.tabor2022.PortalApp
 import cz.jenda.tabor2022.data.model.GameTransaction
-import cz.jenda.tabor2022.data.model.User
-import cz.jenda.tabor2022.data.model.UserWithSkills
 import cz.jenda.tabor2022.data.model.UserWithGroup
+import cz.jenda.tabor2022.data.model.UserWithSkills
 import cz.jenda.tabor2022.data.proto.Portal
 
 object Helpers {
-    fun compare(user: User, playerData: Portal.PlayerData): Boolean {
-        if (user.id != playerData.userId.toLong()) return false
-        if (user.strength != playerData.strength) return false
-        if (user.magic != playerData.magic) return false
-        if (user.dexterity != playerData.dexterity) return false
-        if (user.bonusPoints != playerData.bonusPoints) return false
-        return true
-    }
+    fun compare(user: UserWithSkills, playerData: Portal.PlayerData): Boolean {
+        if (user.user.id != playerData.userId.toLong()) return false
+        if (user.user.strength != playerData.strength) return false
+        if (user.user.magic != playerData.magic) return false
+        if (user.user.dexterity != playerData.dexterity) return false
+        if (user.user.bonusPoints != playerData.bonusPoints) return false
 
-    fun toUser(playerData: Portal.PlayerData): User {
-        return User(
-            playerData.userId.toLong(),
-            "N/A",
-            playerData.strength,
-            playerData.dexterity,
-            playerData.magic,
-            playerData.bonusPoints,
-            null
-        )
+        if (user.skills.map { it.id }.toSet() != playerData.skillsList.toSet()) return false;
+
+        return true
     }
 
     fun UserWithSkills.toPlayerData(): Portal.PlayerData {
