@@ -21,23 +21,25 @@ import cz.jenda.tabor2022.fragments.abstractions.TagAwareFragmentBase
 import kotlinx.datetime.toKotlinInstant
 import java.time.Instant
 
-class BatchModeFragment(val batchModeActivity: BatchModeActivity) : TagAwareFragmentBase(batchModeActivity) {
-    private val builder: MutableLiveData<Portal.PlayerData.Builder?> =
+class BatchModeFragment(private val batchModeActivity: BatchModeActivity) : TagAwareFragmentBase(batchModeActivity) {
+    private val builder: MutableLiveData<Portal.PlayerData.Builder> =
         MutableLiveData(Portal.PlayerData.newBuilder())
 
     override suspend fun onTagRead(tag: MifareClassic, tagData: Portal.PlayerData?) {
-        val playerData = tagData?.toBuilder() ?: Portal.PlayerData.newBuilder()
-        playerData?.setStrength(playerData.strength.plus(playerData.strength))
-        playerData?.setDexterity(playerData.dexterity.plus(playerData.dexterity))
-        playerData?.setMagic(playerData.magic.plus(playerData.magic))
-        playerData?.setBonusPoints(playerData.bonusPoints.plus(playerData.bonusPoints))
+        tagData?.let {
+            val playerData = it.toBuilder()
 
-        val transactions = tagData?.let {
             val deltaStrength = builder.value?.strength ?: 0
             val deltaDexterity = builder.value?.dexterity ?: 0
             val deltaMagic = builder.value?.magic ?: 0
             val deltaBonusPoints = builder.value?.bonusPoints ?: 0
-            if (deltaStrength != 0 || deltaDexterity != 0 || deltaMagic != 0 || deltaBonusPoints != 0) {
+
+            playerData.strength = playerData.strength + deltaStrength
+            playerData.dexterity = playerData.dexterity + deltaDexterity
+            playerData.magic = playerData.magic + deltaMagic
+            playerData.bonusPoints = playerData.bonusPoints + deltaBonusPoints
+
+            val transactions = if (deltaStrength != 0 || deltaDexterity != 0 || deltaMagic != 0 || deltaBonusPoints != 0) {
                 mutableListOf(
                     GameTransaction(
                         time = Instant.now().toKotlinInstant(),
@@ -53,30 +55,35 @@ class BatchModeFragment(val batchModeActivity: BatchModeActivity) : TagAwareFrag
             } else {
                 mutableListOf()
             }
-        }
-        runCatching { batchModeActivity.writeToTag(tag, playerData.build()) }.onSuccess {
-            transactions?.forEach {
-                runCatching {
-                    it.execute()
-                }.onFailure { e ->
-                    when (e) {
-                        is SQLiteConstraintException -> {
-                            if (e.message?.contains(Constants.Db.UniqueConflict) == true) {
-                                Log.v(Constants.AppTag, "Transaction $it is already imported!")
-                                // rethrow all different errors!
+
+            runCatching {
+                batchModeActivity.writeToTag(tag, playerData.build())
+            }.onSuccess {
+                transactions.forEach {
+                    runCatching {
+                        it.execute()
+                    }.onFailure { e ->
+                        when (e) {
+                            is SQLiteConstraintException -> {
+                                if (e.message?.contains(Constants.Db.UniqueConflict) == true) {
+                                    Log.v(Constants.AppTag, "Transaction $it is already imported!")
+                                    // rethrow all different errors!
+                                }
                             }
                         }
+                        throw e
                     }
-                    throw e
+                }
+                activity?.runOnUiThread {
+                    Toast.makeText(activity, R.string.writing_data_ok, Toast.LENGTH_SHORT).show()
+                }
+            }.onFailure {
+                activity?.runOnUiThread {
+                    Toast.makeText(activity, R.string.writing_data_failed, Toast.LENGTH_SHORT).show()
                 }
             }
-            activity?.runOnUiThread{
-                Toast.makeText(activity, R.string.writing_data_ok, Toast.LENGTH_SHORT).show()
-            }
-        }.onFailure {
-            activity?.runOnUiThread{
-                Toast.makeText(activity, R.string.writing_data_failed, Toast.LENGTH_SHORT).show()
-            }
+        } ?: activity?.runOnUiThread {
+            Toast.makeText(this.context, R.string.read_tag_generic_error, Toast.LENGTH_LONG).show()
         }
     }
 
