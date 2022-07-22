@@ -16,7 +16,7 @@
 
     <string name="button_sync_data">Synchronizuj data</string>
     <string name="button_delete_data">Smaž data</string>
-    <string name="button_fix_time">Nastav aktuální čas</string>
+    <string name="button_ip_range">IP range</string>
     <string name="button_init_tag">Inicializace tagu</string>
     <string name="button_save">Ulož</string>
 

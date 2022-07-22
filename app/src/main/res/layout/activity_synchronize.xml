@@ -64,16 +64,16 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent" />
 
-<!--        <Button-->
-<!--                android:id="@+id/buttonSyncTime"-->
-<!--                android:layout_width="wrap_content"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                android:text="@string/button_fix_time"-->
-<!--                app:layout_constraintTop_toBottomOf="@id/buttonDeleteData"-->
-<!--                app:layout_constraintStart_toStartOf="parent"-->
-<!--                app:layout_constraintEnd_toEndOf="parent"-->
-<!--                app:layout_constraintBottom_toBottomOf="parent"-->
-<!--                android:layout_marginBottom="16dp" />-->
+        <Button
+                android:id="@+id/buttonIpRange"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/button_ip_range"
+                app:layout_constraintTop_toBottomOf="@id/buttonDeleteData"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                android:layout_marginBottom="16dp" />
 
 
     </androidx.constraintlayout.widget.ConstraintLayout>

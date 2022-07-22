@@ -15,10 +15,10 @@ class PortalsConnector : CoroutineScope {
     override val coroutineContext: CoroutineContext
         get() = Dispatchers.IO + job
 
-    suspend fun rescan(): Set<PortalConnection> {
-        Log.i(Constants.AppTag, "Starting scanning for portals...")
+    suspend fun rescan(ipRange: Int): Set<PortalConnection> {
+        Log.i(Constants.AppTag, "Starting scanning for portals (range $ipRange)...")
 
-        val newPortals = scan().toMutableSet()
+        val newPortals = scan(ipRange).toMutableSet()
 
         var lost = portals.minus(newPortals)
 
@@ -55,13 +55,12 @@ class PortalsConnector : CoroutineScope {
         return portals
     }
 
-    private suspend fun scan(): Set<PortalConnection> {
+    private suspend fun scan(ipRange: Int): Set<PortalConnection> {
         return coroutineScope {
             (2..254).map { i ->
                 async {
-                    // TODO: make range of IPs auto-discoverable
                     val ip = Inet4Address.getByAddress(
-                        byteArrayOf(192.toByte(), 168.toByte(), 34.toByte(), i.toByte())
+                        byteArrayOf(192.toByte(), 168.toByte(), ipRange.toByte(), i.toByte())
                     )
 
                     val existing = portals.find { it.ip == ip }

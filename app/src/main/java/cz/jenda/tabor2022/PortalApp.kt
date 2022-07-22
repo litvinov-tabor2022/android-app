@@ -1,6 +1,7 @@
 package cz.jenda.tabor2022
 
 import android.app.Application
+import android.content.Context
 import android.content.SharedPreferences
 import cz.jenda.tabor2022.Constants.DbName
 import cz.jenda.tabor2022.Constants.PreferencesName
@@ -20,6 +21,11 @@ class PortalApp : Application() {
         db.close()
         AppDatabase.populateFromFile(applicationContext, file)
     }
+
+    val sharedPrefs: SharedPreferences
+        get() {
+            return applicationContext.getSharedPreferences("prefs", Context.MODE_PRIVATE)
+        }
 
     override fun onCreate() {
         super.onCreate()

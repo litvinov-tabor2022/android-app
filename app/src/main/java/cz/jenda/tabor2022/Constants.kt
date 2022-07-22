@@ -39,5 +39,9 @@ object Constants {
             "(code 2067 SQLITE_CONSTRAINT_UNIQUE[2067])"
     }
 
+    object Prefs {
+        const val IpRange = "ip-range"
+    }
+
     fun ByteArray.toHex(): String = joinToString(separator = "") { eachByte -> "%02x".format(eachByte) }
 }
