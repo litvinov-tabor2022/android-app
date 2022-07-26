@@ -16,7 +16,6 @@ import com.fasterxml.jackson.module.kotlin.KotlinModule
 import cz.jenda.tabor2022.connection.PortalConnection
 import cz.jenda.tabor2022.data.Helpers.execute
 import cz.jenda.tabor2022.data.model.GameTransaction
-import cz.jenda.tabor2022.data.model.User
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.first
@@ -44,36 +43,6 @@ object PortalActions : CoroutineScope {
         .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
         .setSerializationInclusion(JsonInclude.Include.NON_NULL)
 
-    suspend fun synchronizeTime(ctx: Context, portals: Set<PortalConnection>) {
-        val currentTime = System.currentTimeMillis() / 1000
-
-        Log.i(Constants.AppTag, "Synchronizing time of all connected portals to $currentTime")
-
-        val failures = mutableListOf<String>()
-
-        for (conn in portals) {
-            runCatching { conn.client.updateTime(currentTime) }.onFailure { e ->
-                failures += conn.deviceId
-                Log.w(Constants.AppTag, "Could not update time for $conn", e)
-            }
-        }
-
-        coroutineScope {
-            launch(Dispatchers.Main) {
-                if (failures.size == 0) {
-                    Toast.makeText(ctx, R.string.time_updated, Toast.LENGTH_SHORT).show()
-                    Log.i(Constants.AppTag, "Time for all portals synchronized to $currentTime")
-                } else {
-                    Toast.makeText(
-                        ctx,
-                        "Set time failures: ${failures.joinToString()}",
-                        Toast.LENGTH_LONG
-                    ).show()
-                }
-            }
-        }
-    }
-
     suspend fun synchronizeData(ctx: Context, portals: Set<PortalConnection>) {
         Log.i(Constants.AppTag, "Synchronizing data from all connected portals")
 
@@ -93,7 +62,7 @@ object PortalActions : CoroutineScope {
                     .runCatching { updateNamesMapping(conn, namesMapping) }.onFailure { e ->
                         failures += conn.deviceId
                         Log.w(Constants.AppTag, "Could not synchronize names mapping to $conn", e)
-                    }.onSuccess { synchronizeTime(ctx, portals) }
+                    }
             }
         }
 
@@ -102,6 +71,8 @@ object PortalActions : CoroutineScope {
                 if (failures.size == 0) {
                     Log.i(Constants.AppTag, "Data from all portals synchronized!")
                     Toast.makeText(ctx, R.string.data_synchronized, Toast.LENGTH_SHORT).show()
+
+                    synchronizeTime(ctx, portals)
                 } else {
                     Toast.makeText(
                         ctx,
@@ -134,6 +105,36 @@ object PortalActions : CoroutineScope {
                     Toast.makeText(
                         ctx,
                         "Failures: ${failures.joinToString()}",
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
+            }
+        }
+    }
+
+    private suspend fun synchronizeTime(ctx: Context, portals: Set<PortalConnection>) {
+        val currentTime = System.currentTimeMillis() / 1000
+
+        Log.i(Constants.AppTag, "Synchronizing time of all connected portals to $currentTime")
+
+        val failures = mutableListOf<String>()
+
+        for (conn in portals) {
+            runCatching { conn.client.updateTime(currentTime) }.onFailure { e ->
+                failures += conn.deviceId
+                Log.w(Constants.AppTag, "Could not update time for $conn", e)
+            }
+        }
+
+        coroutineScope {
+            launch(Dispatchers.Main) {
+                if (failures.size == 0) {
+                    Toast.makeText(ctx, R.string.time_updated, Toast.LENGTH_SHORT).show()
+                    Log.i(Constants.AppTag, "Time for all portals synchronized to $currentTime")
+                } else {
+                    Toast.makeText(
+                        ctx,
+                        "Set time failures: ${failures.joinToString()}",
                         Toast.LENGTH_LONG
                     ).show()
                 }
