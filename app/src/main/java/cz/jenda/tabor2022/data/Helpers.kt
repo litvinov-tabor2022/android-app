@@ -81,9 +81,10 @@ object Helpers {
                 }
             }
         }.onFailure { e ->
-            if (e is SQLiteConstraintException) {
-                Log.d(Constants.AppTag, "Importing already imported transaction", e)
+            if (e is SQLiteConstraintException && e.message?.contains(Constants.Db.UniqueConflict) == true) {
+                Log.v(Constants.AppTag, "Importing already imported transaction", e)
             } else {
+                Log.e(Constants.AppTag, "Error while importing", e)
                 throw e
             }
         }

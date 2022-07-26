@@ -1,7 +1,6 @@
 package cz.jenda.tabor2022
 
 import android.content.Context
-import android.database.sqlite.SQLiteConstraintException
 import android.util.Log
 import android.widget.Toast
 import com.fasterxml.jackson.annotation.JsonInclude
@@ -19,7 +18,11 @@ import cz.jenda.tabor2022.data.model.GameTransaction
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.first
+import kotlinx.datetime.Clock
 import kotlinx.datetime.toKotlinInstant
+import java.io.BufferedWriter
+import java.io.File
+import java.io.FileWriter
 import kotlin.coroutines.CoroutineContext
 
 object PortalActions : CoroutineScope {
@@ -153,9 +156,23 @@ object PortalActions : CoroutineScope {
 
         var i: Int = 0
 
-        portal.client.fetchData().collect { transaction ->
-            runCatching {
+        val file = File(
+            PortalApp.instance.filesDir.absolutePath + File.separator +
+                    "transactions_" + portal.deviceId + "_" +
+                    Clock.System.now().toEpochMilliseconds() + ".log"
+        )
+
+        Log.i(Constants.AppTag, "Writing transactions log to ${file.absolutePath}")
+
+        val writer = BufferedWriter(FileWriter(file))
+
+
+        kotlin.runCatching {
+            portal.client.fetchData().collect { transaction ->
                 Log.v(Constants.AppTag, "Transaction from $portal: $transaction")
+
+                writer.appendLine(transaction.toString())
+
                 GameTransaction(
                     time = transaction.time.toKotlinInstant(),//.plus(i++, DateTimeUnit.MILLISECOND),
                     userId = transaction.userId,
@@ -166,18 +183,10 @@ object PortalActions : CoroutineScope {
                     bonusPoints = transaction.bonusPoints,
                     skillId = transaction.skill,
                 ).execute()
-            }.onFailure { e ->
-                when (e) {
-                    is SQLiteConstraintException -> {
-                        if (e.message?.contains(Constants.Db.UniqueConflict) == true) {
-                            Log.v(Constants.AppTag, "Transaction $transaction is already imported!")
-                        } else {
-                            // rethrow all different errors!
-                            throw e
-                        }
-                    }
-                }
             }
+        }.onSuccess { writer.close() }.onFailure { e ->
+            writer.close()
+            throw e
         }
     }
 }

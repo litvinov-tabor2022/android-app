@@ -35,8 +35,7 @@ object Constants {
     )
 
     object Db {
-        const val UniqueConflict: String =
-            "(code 2067 SQLITE_CONSTRAINT_UNIQUE[2067])"
+        const val UniqueConflict: String = "code 2067 SQLITE_CONSTRAINT_UNIQUE"
     }
 
     object Prefs {
