@@ -7,11 +7,13 @@ import android.graphics.Color
 import android.nfc.tech.MifareClassic
 import android.os.Bundle
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.MutableLiveData
+import androidx.room.withTransaction
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.tabs.TabLayoutMediator
 import cz.jenda.tabor2022.Constants
@@ -23,6 +25,7 @@ import cz.jenda.tabor2022.data.Helpers.toPlayerData
 import cz.jenda.tabor2022.data.model.UserWithGroup
 import cz.jenda.tabor2022.data.proto.Portal
 import cz.jenda.tabor2022.databinding.ActivityUserDetailsBinding
+import cz.jenda.tabor2022.fragments.dialogs.ImportDataConfirmationDialog
 import cz.jenda.tabor2022.fragments.dialogs.WriteToTagDialog
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
@@ -30,12 +33,14 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlin.properties.Delegates
 
-class UserDetailActivity : NfcActivityBase(), WriteToTagDialog.WriteToTagDialogListener {
+class UserDetailActivity : NfcActivityBase(), WriteToTagDialog.WriteToTagDialogListener,
+    ImportDataConfirmationDialog.ImportDataConfirmationDialogListener {
     private var userId by Delegates.notNull<Long>()
     private lateinit var userWithGroup: UserWithGroup
     private lateinit var referencePlayerData: Portal.PlayerData
     private val playerData: MutableLiveData<Portal.PlayerData.Builder> = MutableLiveData()
     private lateinit var fabSave: FloatingActionButton
+    private lateinit var fabImport: FloatingActionButton
     private var readOnly: Boolean = false
 
     private val startForResult =
@@ -75,9 +80,17 @@ class UserDetailActivity : NfcActivityBase(), WriteToTagDialog.WriteToTagDialogL
         setContentView(R.layout.fragment_user_details)
 
         val binding = ActivityUserDetailsBinding.inflate(layoutInflater)
-        fabSave = binding.fab
-        if (readOnly)
+
+        fabSave = binding.fabSave
+        fabImport = binding.fabImport
+
+        if (readOnly) {
             fabSave.backgroundTintList = ColorStateList.valueOf(Color.rgb(255, 50, 50))
+            fabImport.visibility = FloatingActionButton.VISIBLE
+        } else {
+            fabImport.visibility = FloatingActionButton.INVISIBLE
+        }
+
         setContentView(binding.root)
         val viewPager = binding.viewPager
 
@@ -121,13 +134,36 @@ class UserDetailActivity : NfcActivityBase(), WriteToTagDialog.WriteToTagDialogL
             startForResult.launch(intent)
         }
 
+        fabImport.setOnClickListener {
+            val dialog = ImportDataConfirmationDialog()
+            dialog.show(this.supportFragmentManager, "")
+        }
+
         TabLayoutMediator(binding.tabs, viewPager) { tab, position ->
             tab.text = pagerAdapter.headerNames[position]
         }.attach()
     }
 
     override fun onDialogPositiveClick(dialog: DialogFragment) {
+        if (dialog is ImportDataConfirmationDialog) {
+            Log.i(Constants.AppTag, "Importing (forcing) data for user ${userWithGroup.userWithSkills}")
 
+            val user = playerData.value?.build()!!
+            val db = PortalApp.instance.db
+
+            launch {
+                db.withTransaction {
+                    db.usersDao().save(userId, user.strength, user.dexterity, user.magic, user.bonusPoints)
+                    db.userSkillCrossRefDao().removeAllSkills(userId)
+
+                    user.skillsList.forEach { skill ->
+                        db.userSkillCrossRefDao().addSkill(userId, skill.number.toLong())
+                    }
+                }
+            }
+
+            Toast.makeText(this.baseContext, R.string.data_imported, Toast.LENGTH_LONG).show()
+        }
     }
 
     override fun onDialogNegativeClick(dialog: DialogFragment) {

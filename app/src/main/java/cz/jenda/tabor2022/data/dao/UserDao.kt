@@ -2,8 +2,8 @@ package cz.jenda.tabor2022.data.dao
 
 import androidx.room.*
 import cz.jenda.tabor2022.data.model.User
-import cz.jenda.tabor2022.data.model.UserWithSkills
 import cz.jenda.tabor2022.data.model.UserWithGroup
+import cz.jenda.tabor2022.data.model.UserWithSkills
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -13,6 +13,10 @@ interface UserDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun save(user: User)
+
+    @Transaction
+    @Query("UPDATE users set strength = :strength, dexterity = :dexterity, magic = :magic, bonus_points = :bonusPoints where user_id = :userId")
+    suspend fun save(userId: Long, strength: Int, dexterity: Int, magic: Int, bonusPoints: Int)
 
     @Delete
     suspend fun remove(user: User)

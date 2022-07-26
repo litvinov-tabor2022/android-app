@@ -46,9 +46,11 @@
     <string name="revert_changes">Vrátit úpravy</string>
     <string name="write_to_tag">Přilož amulet hráče %1$s.</string>
     <string name="data_written">Data hráče úspěšně uložena</string>
+    <string name="data_imported">Data hráče úspěšně importována</string>
     <string name="writing_data_failed">Zápis dat na amulet selhal. Opakujte pokus.</string>
     <string name="inconsistent_data">Data na amuletu a v zařízení nejsou konzistentní.</string>
     <string name="q_delete_data">Opravdu smazat data v zařízeních?</string>
+    <string name="q_import_data">Opravdu importovat data tohoto hráče?</string>
     <string name="ok">OK</string>
     <string name="remove">Smazat</string>
     <string name="userstab_header_list">Hráči</string>

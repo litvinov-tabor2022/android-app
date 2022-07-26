@@ -8,12 +8,14 @@ import android.util.Log
 import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.DialogFragment
-import cz.jenda.tabor2022.*
+import cz.jenda.tabor2022.Constants
+import cz.jenda.tabor2022.Extras
+import cz.jenda.tabor2022.PortalApp
+import cz.jenda.tabor2022.R
 import cz.jenda.tabor2022.data.Helpers.execute
 import cz.jenda.tabor2022.data.model.GameTransaction
 import cz.jenda.tabor2022.data.model.UserWithGroup
 import cz.jenda.tabor2022.data.proto.Portal
-import cz.jenda.tabor2022.exception.TagCannotBeWritten
 import cz.jenda.tabor2022.exception.WritingToTagBelongingAnotherUser
 import cz.jenda.tabor2022.fragments.dialogs.WriteToTagDialog
 import kotlinx.coroutines.CompletableDeferred
@@ -40,11 +42,13 @@ class TagWriteActivity : NfcActivityBase(), WriteToTagDialog.WriteToTagDialogLis
             userWithGroup = PortalApp.instance.db.usersDao().getById(
                 playerData.userId.toLong()
             ).first()
-            findViewById<TextView>(R.id.text_attach_tag)?.text =
-                getString(
-                    R.string.write_to_tag,
-                    userWithGroup.userWithSkills.user.name
-                )
+            runOnUiThread {
+                findViewById<TextView>(R.id.text_attach_tag)?.text =
+                    getString(
+                        R.string.write_to_tag,
+                        userWithGroup.userWithSkills.user.name
+                    )
+            }
         }
 
     }
